@@ -1,13 +1,13 @@
 {
-    "name": "bravedave/cms-web",
-    "description": "Web Extensions for CMS",
+    "name": "bravedave/cms-leasing",
+    "description": "Leasing Extensions for CMS",
     "type": "library",
     "require": {
         "bravedave/dvc": "*"
     },
     "autoload": {
         "psr-4": {
-            "cms\\web\\": ""
+            "cms\\leasing\\": ""
         }
     },
     "license": "MIT",
