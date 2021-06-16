@@ -13,4 +13,6 @@ namespace cms\leasing;
 class config extends \config {
   const label = 'Leasing';
 
+  const check_console_tenants = true;
+
 }

@@ -10,6 +10,7 @@
 
 namespace cms\leasing\dao;
 
+use cms\leasing\config;
 use dao\_dao;
 
 class tenants extends _dao {
@@ -150,6 +151,34 @@ class tenants extends _dao {
       });
 
     }
+
+    if ( config::check_console_tenants) {
+      /**
+       * are there any console tenants missing here
+       */
+
+      $sql = 'SELECT
+          ct.id,
+          ct.ContactID,
+          ct.ConsolePropertyID,
+          ct.LeaseFirstStart,
+          ct.LeaseStart,
+          ct.LeaseStop,
+          cc.people_id
+        FROM
+          `console_tenants` ct
+          LEFT JOIN `console_contacts` cc ON cc.ConsoleID = ct.ContactID
+        WHERE NOT cc.people_id IN (SELECT `people_id` FROM `_tens`)';
+      if ($this->Result( $sql)) {
+        $res->dtoSet( function( $dto) {
+          \sys::logger( sprintf('<%s> %s', $dto->people_id, __METHOD__));
+
+        });
+
+      }
+
+    }
+
 
     // \sys::logger( sprintf('<%s> %s', $timer->elapsed(), __METHOD__));
 
