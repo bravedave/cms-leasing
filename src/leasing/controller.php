@@ -78,7 +78,7 @@ class controller extends \Controller {
           url : _.url('leasing'),
           data : {
             action : 'get-tenants-lease',
-            id : 37995
+            id : 105287
 
           }
 
