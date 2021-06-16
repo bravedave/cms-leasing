@@ -301,8 +301,10 @@ class tenants extends _dao {
           if ( $tenants = json_decode( $dto->tenants)) {
             foreach ($tenants as $tenant) {
               if ( $tenant_id == $tenant->id) {
-                return (object)[
+
+                $a = [
                   'properties_id' => $dto->property_id,
+                  'address_street' => $dto->address_street,
                   'lease_start_inaugural' => $dto->lease_start_inaugural,
                   'lease_start' => $dto->lease_start,
                   'lease_end' => $dto->lease_end,
@@ -314,6 +316,8 @@ class tenants extends _dao {
                   'type' => 'tenant'
 
                 ];
+
+                return (object)$a;
 
               }
 
