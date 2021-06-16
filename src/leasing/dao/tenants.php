@@ -160,7 +160,8 @@ class tenants extends _dao {
        * are there any console tenants missing here
        */
 
-      $sql = 'SELECT
+      $sql = sprintf(
+        'SELECT
           ct.`id`,
           ct.`ContactID`,
           ct.`ConsolePropertyID`,
@@ -182,7 +183,11 @@ class tenants extends _dao {
             LEFT JOIN
           `console_properties` cp ON cp.ConsoleID = ct.ConsolePropertyID
         WHERE
-          NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)';
+          ( ct.Vacating IS NULL OR ct.Vacating <= %s
+          AND NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)',
+        $this->quote( date('Y-m-d'))
+
+      );
 
       if ( $debug) {
         $this->Q('DROP TABLE IF EXISTS _tens_');
@@ -195,7 +200,7 @@ class tenants extends _dao {
         $res->dtoSet( function( $dto) use (&$ids) {
 
           if ( in_array( $dto->people_id, $ids)) {
-            \sys::logger( sprintf('<%s in multiple residence (c) !> %s', $dto->people_id, __METHOD__));
+            \sys::logger( sprintf('<%s/%s in multiple residence (c) !> %s', $dto->people_id, $dto->properties_id, __METHOD__));
 
           }
           else {
