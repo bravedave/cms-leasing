@@ -183,7 +183,7 @@ class tenants extends _dao {
             LEFT JOIN
           `console_properties` cp ON cp.ConsoleID = ct.ConsolePropertyID
         WHERE
-          ( ct.Vacating IS NULL OR ct.Vacating <= %s
+          ( ct.Vacating IS NULL OR ct.Vacating <= %s)
           AND NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)',
         $this->quote( date('Y-m-d'))
 
