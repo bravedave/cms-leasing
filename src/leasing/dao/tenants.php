@@ -25,6 +25,8 @@ class tenants extends _dao {
   }
 
   function getCurrentTenants( int $property_id = 0) {
+    $debug = false;
+    $debug = true;
 
     $timer = \application::app()->timer();
 
@@ -59,6 +61,8 @@ class tenants extends _dao {
       implode( ' AND ', $where)
 
     );
+
+    if ( $debug) \sys::logSQL( sprintf('<%s> %s', $sql, __METHOD__));
 
     $dbc = \sys::dbCheck( '_tens' );
 
