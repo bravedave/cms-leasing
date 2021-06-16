@@ -92,6 +92,7 @@ class tenants extends _dao {
 
               }
               else {
+                $ids[] = $tenant->id;
                 $a = [
                   'properties_id' => $dto->property_id,
                   'lease_start_inaugural' => $dto->lease_start_inaugural,
@@ -124,6 +125,7 @@ class tenants extends _dao {
 
               }
               else {
+                $ids[] = $tenant->id;
                 $a = [
                   'properties_id' => $dto->property_id,
                   'lease_start_inaugural' => $dto->lease_start_inaugural,
@@ -158,9 +160,9 @@ class tenants extends _dao {
        */
 
       $sql = 'SELECT
-          ct.id,
-          ct.ContactID,
-          ct.ConsolePropertyID,
+          ct.`id`,
+          ct.`ContactID`,
+          ct.`ConsolePropertyID`,
           ct.`LeaseFirstStart` lease_start_inaugural,
           ct.`LeaseStart` lease_start,
           ct.`LeaseStop` lease_end,
@@ -168,14 +170,18 @@ class tenants extends _dao {
           people.`name`,
           people.`mobile`,
           people.`telephone`,
-          people.`email`
+          people.`email`,
+          cp.`properties_id`
         FROM
           `console_tenants` ct
-          LEFT JOIN `console_contacts` cc ON cc.ConsoleID = ct.ContactID
-          LEFT JOIN `people` ON people.id = cc.people_id
+            LEFT JOIN
+          `console_contacts` cc ON cc.ConsoleID = ct.ContactID
+            LEFT JOIN
+          `people` ON people.id = cc.people_id
+            LEFT JOIN
+          `console_properties` cp ON cp.ConsoleID = ct.ConsolePropertyID
         WHERE
           NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)';
-
 
       if ( $debug) {
         $this->Q('DROP TABLE IF EXISTS _tens_');
@@ -185,8 +191,34 @@ class tenants extends _dao {
       }
 
       if ( $res = $this->Result( $sql)) {
-        $res->dtoSet( function( $dto) {
-          \sys::logger( sprintf('<%s> %s', $dto->people_id, __METHOD__));
+        $res->dtoSet( function( $dto) use (&$ids) {
+
+          if ( in_array( $dto->people_id, $ids)) {
+            \sys::logger( sprintf('<%s in multiple residence !> %s', $tenant->id, __METHOD__));
+
+          }
+          else {
+            $ids[] = $dto->people_id;
+            $a = [
+              'properties_id' => $dto->properties_id,
+              'lease_start_inaugural' => $dto->lease_start_inaugural,
+              'lease_start' => $dto->lease_start,
+              'lease_end' => $dto->lease_end,
+              'person_id' => $dto->people_id,
+              'name' => $dto->name,
+              'phone' => strings::IsMobilePhone( $dto->mobile) ? $dto->mobile : $dto->phone,
+              'email' => $dto->email,
+              'source' => 'console',
+              'type' => 'tenant'
+
+            ];
+
+            $this->db->Insert('_tens', $a);
+
+            \sys::logger( sprintf('<%s> %s', $dto->people_id, __METHOD__));
+
+          }
+
           return $dto;
 
         });
