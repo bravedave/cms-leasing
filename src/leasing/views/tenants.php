@@ -35,6 +35,7 @@ use strings;
         <td>start</td>
         <td>end</td>
         <td class="text-center">T/O</td>
+        <td class="text-center">Source/td>
 
       </tr>
 
@@ -67,6 +68,7 @@ use strings;
           </td>
           <td><?= strings::asLocalDate( $dto->lease_end) ?></td>
           <td class="text-center"><?= 'tenant' == $dto->type ? 'T' : ('occupant' == $dto->type ? 'O' : '?') ?></td>
+          <td class="text-center"><?= $dto->source ?></td>
 
         </tr>
       <?php } ?>
