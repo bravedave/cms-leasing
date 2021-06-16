@@ -71,6 +71,41 @@ class controller extends \Controller {
       }
 
     }
+    elseif ( 'get-tenants-lease' == $action) {
+      /*
+      ( _ => {
+        _.post({
+          url : _.url('leasing'),
+          data : {
+            action : 'get-tenants-lease',
+            id : 37995
+
+          }
+
+        }).then( d => console.log('ack' == d.response ? d.tenants : d))
+
+      })(_brayworth_)
+
+       */
+      if ( $id = $this->getPost( 'id')) {
+        $dao = new dao\tenants;
+        if ( $tens = $dao->getTenantsLease( $id)) {
+          Json::ack( $action)
+            ->add( 'tenants', $tens);
+
+        }
+        else {
+          Json::nak( $action);
+
+        }
+
+      }
+      else {
+        Json::nak( $action);
+
+      }
+
+    }
     else {
 			parent::postHandler();
 
