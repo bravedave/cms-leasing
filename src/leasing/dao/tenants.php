@@ -242,7 +242,8 @@ class tenants extends _dao {
         p.address_street,
         p.street_index
       FROM `_tens` t
-        LEFT JOIN `properties` p on p.id = t.properties_id';
+        LEFT JOIN `properties` p on p.id = t.properties_id
+      ORDER BY p.street_index ASC';
 
     return $this->Result($sql);
 
