@@ -161,6 +161,20 @@ class tenants extends _dao {
        * are there any console tenants missing here
        */
 
+      $where = [
+        sprintf( '( ct.Vacating IS NULL OR ct.Vacating <= %s)', $this->quote( date('Y-m-d')),
+        sprintf( 'ct.`LeaseStart` <= %s', $this->quote( date( 'Y-m-d'))),
+        sprintf( 'ct.`LeaseStop` > %s', $this->quote( date( 'Y-m-d'))),
+        'NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)'
+
+      ];
+      // 'NOT ISNULL(`lessor_signature`)'
+
+      if ( $property_id) {
+        array_unshift( $where, sprintf('cp.`properties_id` = %d', $property_id));
+
+      }
+
       $sql = sprintf(
         'SELECT
           ct.`id`,
@@ -184,9 +198,8 @@ class tenants extends _dao {
             LEFT JOIN
           `console_properties` cp ON cp.ConsoleID = ct.ConsolePropertyID
         WHERE
-          ( ct.Vacating IS NULL OR ct.Vacating <= %s)
-          AND NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)',
-        $this->quote( date('Y-m-d'))
+          %s',
+        implode( ' AND ', $where)
 
       );
 
