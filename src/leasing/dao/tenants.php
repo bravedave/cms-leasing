@@ -170,7 +170,14 @@ class tenants extends _dao {
           LEFT JOIN `console_contacts` cc ON cc.ConsoleID = ct.ContactID
         WHERE NOT cc.people_id IN (SELECT `people_id` FROM `_tens`)';
 
-      if ( $debug) \sys::logSQL( sprintf('<%s> %s', $sql, __METHOD__));
+
+      if ( $debug) {
+        $this->Q('DROP TABLE IF EXISTS _tens_');
+        $this->Q('CREATE TABLE _tens_ AS SELECT * FROM _tens');
+        \sys::logSQL( sprintf('<%s> %s', $sql, __METHOD__));
+
+      }
+
       if ($this->Result( $sql)) {
 
         \sys::logger( sprintf('<%s> %s', 'have result ..', __METHOD__));
