@@ -161,14 +161,20 @@ class tenants extends _dao {
           ct.id,
           ct.ContactID,
           ct.ConsolePropertyID,
-          ct.LeaseFirstStart,
-          ct.LeaseStart,
-          ct.LeaseStop,
-          cc.people_id
+          ct.`LeaseFirstStart` lease_start_inaugural,
+          ct.`LeaseStart` lease_start,
+          ct.`LeaseStop` lease_end,
+          cc.`people_id`,
+          people.`name`,
+          people.`mobile`,
+          people.`phone`,
+          people.`email`
         FROM
           `console_tenants` ct
           LEFT JOIN `console_contacts` cc ON cc.ConsoleID = ct.ContactID
-        WHERE NOT cc.people_id IN (SELECT `people_id` FROM `_tens`)';
+          LEFT JOIN `people` ON people.id = cc.people_id
+        WHERE
+          NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)';
 
 
       if ( $debug) {
