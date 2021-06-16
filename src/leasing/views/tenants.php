@@ -55,6 +55,7 @@ use strings;
           data-name="<?= \htmlspecialchars( $dto->name) ?>"
           data-street="<?= \htmlspecialchars( $dto->address_street) ?>"
           data-street_index="<?= \htmlspecialchars( $street_index) ?>"
+          <?php if ( 'console' == $dto->source) print 'class="text-warning"'; ?>
           >
           <td class="small text-center" line-number></td>
           <td>

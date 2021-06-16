@@ -28,7 +28,7 @@ class tenants extends _dao {
 
   function getCurrentTenants( int $property_id = 0) {
     $debug = false;
-    $debug = true;
+    // $debug = true;
 
     $timer = \application::app()->timer();
 
@@ -59,7 +59,8 @@ class tenants extends _dao {
       FROM
         `offer_to_lease`
       WHERE
-        %s',
+        %s
+      ORDER BY `lease_start` DESC',
       implode( ' AND ', $where)
 
     );
