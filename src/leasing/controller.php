@@ -40,7 +40,7 @@ class controller extends \Controller {
       /*
       ( _ => {
         _.post({
-          url : _.url('tenants'),
+          url : _.url('leasing'),
           data : {
             action : 'get-tenants-for-property',
             id : 37995

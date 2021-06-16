@@ -7,7 +7,7 @@
     },
     "autoload": {
         "psr-4": {
-            "cms\\leasing\\": ""
+            "cms\\leasing\\": "src/leasing/"
         }
     },
     "license": "MIT",
