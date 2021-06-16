@@ -184,11 +184,10 @@ class tenants extends _dao {
 
       }
 
-      if ($this->Result( $sql)) {
-
-        \sys::logger( sprintf('<%s> %s', 'have result ..', __METHOD__));
+      if ( $res = $this->Result( $sql)) {
         $res->dtoSet( function( $dto) {
           \sys::logger( sprintf('<%s> %s', $dto->people_id, __METHOD__));
+          return $dto;
 
         });
 
