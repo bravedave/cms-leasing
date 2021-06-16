@@ -47,7 +47,7 @@ class controller extends \Controller {
 
           }
 
-        }).then( d => console.log('ack' == d.response ? d.data : d))
+        }).then( d => console.log('ack' == d.response ? d.tenants : d))
 
       })(_brayworth_)
 
@@ -56,7 +56,7 @@ class controller extends \Controller {
         $dao = new dao\tenants;
         if ( $tens = $dao->getTenantsOfProperty( $id)) {
           Json::ack( $action)
-            ->add( 'data', $tens);
+            ->add( 'tenants', $tens);
 
         }
         else {
