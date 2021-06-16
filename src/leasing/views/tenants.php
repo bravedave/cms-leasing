@@ -30,7 +30,7 @@ use strings;
         <td class="text-center" line-number></td>
         <td data-role="sort-header" data-key="name">name</td>
         <td><i class="bi bi-telephone"></i></td>
-        <td>email</td>
+        <td><i class="bi bi-at"></i></td>
         <td data-role="sort-header" data-key="street_index">address</td>
         <td>start</td>
         <td>end</td>
@@ -63,7 +63,7 @@ use strings;
           <td title="<?= strings::isMobilePhone( $dto->phone) ? strings::asMobilePhone( $dto->phone) : strings::asLocalPhone( $dto->phone) ?>">
             <?= strings::isPhone( $dto->phone) ? '<i class="bi bi-telephone"></i>' : '&nbsp;' ?>
           </td>
-          <td><?= $dto->email ?></td>
+          <td title="<?= $dto->email ?>"><?= strings::isEmail( $dto->email) ? '<i class="bi bi-at"></i>' : '&nbsp;' ?></td>
           <td><?= $dto->address_street ?></td>
           <td>
             <?= strings::asLocalDate( $dto->lease_start) ?>
