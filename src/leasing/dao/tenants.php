@@ -162,7 +162,7 @@ class tenants extends _dao {
        */
 
       $where = [
-        sprintf( '( ct.Vacating IS NULL OR ct.Vacating <= %s)', $this->quote( date('Y-m-d')),
+        sprintf( '( ct.Vacating IS NULL OR ct.Vacating <= %s)', $this->quote( date('Y-m-d'))),
         sprintf( 'ct.`LeaseStart` <= %s', $this->quote( date( 'Y-m-d'))),
         sprintf( 'ct.`LeaseStop` > %s', $this->quote( date( 'Y-m-d'))),
         'NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)'
