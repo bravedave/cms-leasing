@@ -3,7 +3,8 @@
     "description": "Leasing Extensions for CMS",
     "type": "library",
     "require": {
-        "bravedave/dvc": "*"
+        "bravedave/dvc": "*",
+        "bravedave/cms-console": "*"
     },
     "autoload": {
         "psr-4": {
