@@ -169,9 +169,11 @@ class tenants extends _dao {
           `console_tenants` ct
           LEFT JOIN `console_contacts` cc ON cc.ConsoleID = ct.ContactID
         WHERE NOT cc.people_id IN (SELECT `people_id` FROM `_tens`)';
-      if ( $debug) \sys::logger( sprintf('<%s> %s', $sql, __METHOD__));
 
+      if ( $debug) \sys::logSQL( sprintf('<%s> %s', $sql, __METHOD__));
       if ($this->Result( $sql)) {
+
+        \sys::logger( sprintf('<%s> %s', 'have result ..', __METHOD__));
         $res->dtoSet( function( $dto) {
           \sys::logger( sprintf('<%s> %s', $dto->people_id, __METHOD__));
 
