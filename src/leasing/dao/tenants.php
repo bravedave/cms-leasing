@@ -85,12 +85,12 @@ class tenants extends _dao {
 
     if ( $res = $this->Result( $sql)) {
       $ids = [];
-      $res->dtoSet( function($dto) use (&$ids) {
+      $res->dtoSet( function($dto) use (&$ids, $debug) {
         if ( $dto->tenants) {
           if ( $tenants = json_decode( $dto->tenants)) {
             foreach ($tenants as $tenant) {
               if ( in_array( $tenant->id, $ids)) {
-                \sys::logger( sprintf('<%s/%s in multiple residence (a) !> %s', $tenant->id, $dto->property_id, __METHOD__));
+                if ( $debug) \sys::logger( sprintf('<%s/%s in multiple residence (a) !> %s', $tenant->id, $dto->property_id, __METHOD__));
 
               }
               else {
@@ -123,7 +123,7 @@ class tenants extends _dao {
           if ( $tenants = json_decode( $dto->tenants_approved)) {
             foreach ($tenants as $tenant) {
               if ( in_array( $tenant->id, $ids)) {
-                \sys::logger( sprintf('<%s/%s in multiple residence (b) !> %s', $tenant->id, $dto->property_id, __METHOD__));
+                if ( $debug) \sys::logger( sprintf('<%s/%s in multiple residence (b) !> %s', $tenant->id, $dto->property_id, __METHOD__));
 
               }
               else {
@@ -198,10 +198,10 @@ class tenants extends _dao {
       }
 
       if ( $res = $this->Result( $sql)) {
-        $res->dtoSet( function( $dto) use (&$ids) {
+        $res->dtoSet( function( $dto) use (&$ids, $debug) {
 
           if ( in_array( $dto->people_id, $ids)) {
-            \sys::logger( sprintf('<%s/%s in multiple residence (c) !> %s', $dto->people_id, $dto->properties_id, __METHOD__));
+            if ( $debug) \sys::logger( sprintf('<%s/%s in multiple residence (c) !> %s', $dto->people_id, $dto->properties_id, __METHOD__));
 
           }
           else {
