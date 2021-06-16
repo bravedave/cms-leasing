@@ -35,7 +35,7 @@ use strings;
         <td>start</td>
         <td>end</td>
         <td class="text-center">T/O</td>
-        <td class="text-center">Source/td>
+        <td class="text-center">Source</td>
 
       </tr>
 
