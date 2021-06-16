@@ -167,7 +167,7 @@ class tenants extends _dao {
           cc.`people_id`,
           people.`name`,
           people.`mobile`,
-          people.`phone`,
+          people.`telephone`,
           people.`email`
         FROM
           `console_tenants` ct
