@@ -29,7 +29,7 @@ use strings;
       <tr>
         <td class="text-center" line-number></td>
         <td data-role="sort-header" data-key="name">name</td>
-        <td>phone</td>
+        <td><i class="bi bi-telephone"></i></td>
         <td>email</td>
         <td data-role="sort-header" data-key="street_index">address</td>
         <td>start</td>
@@ -57,8 +57,12 @@ use strings;
           data-street_index="<?= \htmlspecialchars( $street_index) ?>"
           >
           <td class="small text-center" line-number></td>
-          <td><?= $dto->name ?></td>
-          <td class="text-nowrap"><?= strings::isMobilePhone( $dto->phone) ? strings::asMobilePhone( $dto->phone) : strings::asLocalPhone( $dto->phone) ?></td>
+          <td>
+            <?= $dto->name ?>
+          </td>
+          <td title="<?= strings::isMobilePhone( $dto->phone) ? strings::asMobilePhone( $dto->phone) : strings::asLocalPhone( $dto->phone) ?>">
+            <?= strings::isPhone( $dto->phone) ? '<i class="bi bi-telephone"></i>' : '&nbsp;' ?>
+          </td>
           <td><?= $dto->email ?></td>
           <td><?= $dto->address_street ?></td>
           <td>
