@@ -300,7 +300,7 @@ class tenants extends _dao {
         if ( $dto->tenants) {
           if ( $tenants = json_decode( $dto->tenants)) {
             foreach ($tenants as $tenant) {
-              if ( $id == $tenant->id) {
+              if ( $tenant_id == $tenant->id) {
                 return (object)[
                   'properties_id' => $dto->property_id,
                   'lease_start_inaugural' => $dto->lease_start_inaugural,
