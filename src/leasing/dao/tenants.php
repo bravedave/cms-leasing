@@ -31,9 +31,10 @@ class tenants extends _dao {
     $where = [
       sprintf( '`lease_start` <= %s', $this->quote( date( 'Y-m-d'))),
       sprintf( '`lease_end` > %s', $this->quote( date( 'Y-m-d'))),
-      'NOT ISNULL(`lessor_signature`)'
+      'NOT `lessor_signature` IS NULL'
 
     ];
+    // 'NOT ISNULL(`lessor_signature`)'
 
     if ( $property_id) {
       array_unshift( $where, sprintf('`property_id` = %d', $property_id));
