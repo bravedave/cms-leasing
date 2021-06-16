@@ -12,6 +12,7 @@ namespace cms\leasing\dao;
 
 use cms\leasing\config;
 use dao\_dao;
+use strings;
 
 class tenants extends _dao {
   function getTenantsOfProperty( int $id) : array {
