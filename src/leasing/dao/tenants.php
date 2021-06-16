@@ -54,8 +54,7 @@ class tenants extends _dao {
         `tenants_approved`,
         `lease_start`,
         `lease_start_inaugural`,
-        `lease_end`,
-        `lessor_signature`
+        `lease_end`
       FROM
         `offer_to_lease`
       WHERE
@@ -248,7 +247,7 @@ class tenants extends _dao {
     }
 
 
-    // \sys::logger( sprintf('<%s> %s', $timer->elapsed(), __METHOD__));
+    if ( $debug) \sys::logger( sprintf('<%s> %s', $timer->elapsed(), __METHOD__));
 
     $sql = 'SELECT
         t.*,
@@ -259,6 +258,81 @@ class tenants extends _dao {
       ORDER BY p.street_index ASC';
 
     return $this->Result($sql);
+
+  }
+
+  function getTenantsLease( int $tenant_id) {
+    $debug = false;
+    // $debug = true;
+
+    $timer = \application::app()->timer();
+
+    $where = [
+      sprintf( '`lease_start` <= %s', $this->quote( date( 'Y-m-d'))),
+      sprintf( '`lease_end` > %s', $this->quote( date( 'Y-m-d'))),
+      'NOT `lessor_signature` IS NULL'
+
+    ];
+
+    $sql = sprintf(
+      'SELECT
+        `id`,
+        `property_id`,
+        `address_street`,
+        `tenants`,
+        `tenants_approved`,
+        `lease_start`,
+        `lease_start_inaugural`,
+        `lease_end`
+      FROM
+        `offer_to_lease`
+      WHERE
+        %s
+      ORDER BY `lease_start` DESC',
+      implode( ' AND ', $where)
+
+    );
+
+    if ( $debug) \sys::logSQL( sprintf('<%s> %s', $sql, __METHOD__));
+
+    if ( $res = $this->Result( $sql)) {
+      while ( $dto = $res->dto()) {
+        if ( $dto->tenants) {
+          if ( $tenants = json_decode( $dto->tenants)) {
+            foreach ($tenants as $tenant) {
+              if ( $id == $tenant->id) {
+                return (object)[
+                  $a = [
+                    'properties_id' => $dto->property_id,
+                    'lease_start_inaugural' => $dto->lease_start_inaugural,
+                    'lease_start' => $dto->lease_start,
+                    'lease_end' => $dto->lease_end,
+                    'person_id' => $tenant->id,
+                    'name' => $tenant->name,
+                    'phone' => $tenant->phone,
+                    'email' => $tenant->email,
+                    'source' => 'lease',
+                    'type' => 'tenant'
+
+                  ];
+
+                ];
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+
+    if ( $debug) \sys::logger( sprintf('<%s> %s', $timer->elapsed(), __METHOD__));
+
+    return null;
 
   }
 

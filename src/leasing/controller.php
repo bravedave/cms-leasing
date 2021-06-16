@@ -82,16 +82,16 @@ class controller extends \Controller {
 
           }
 
-        }).then( d => console.log('ack' == d.response ? d.tenants : d))
+        }).then( d => console.log('ack' == d.response ? d.lease : d))
 
       })(_brayworth_)
 
        */
       if ( $id = $this->getPost( 'id')) {
         $dao = new dao\tenants;
-        if ( $tens = $dao->getTenantsLease( $id)) {
+        if ( $lease = $dao->getTenantsLease( $id)) {
           Json::ack( $action)
-            ->add( 'tenants', $tens);
+            ->add( 'lease', $lease);
 
         }
         else {
