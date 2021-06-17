@@ -88,7 +88,7 @@ use strings;
   $('#<?= $tblID ?>')
   .on('update-line-numbers', function( e) {
     let tot = 0;
-    $('> tbody > tr:not(.d-none) >td[line-number]', this).each( ( i, e) => {
+    $('> tbody > tr:not(.d-none) > td[line-number]', this).each( ( i, e) => {
       $(e).data('line', i+1).html( i+1);
       tot ++;
 
@@ -138,6 +138,37 @@ use strings;
       );
 
       _context.open( e);
+
+    });
+
+  });
+
+  $('> tbody > tr > td[line-number]', this).each( ( i, td) => {
+    $(td).on( 'click', function( e) {
+      e.stopPropagation();
+
+      let _me = $(this);
+      let _data = _me.data();
+      let _icon = $('i.bi-check', this);
+      if ( _icon.length > 0) {
+        _me.html( _data.line);
+
+      }
+      else {
+        _me.html('').append( '<i class="bi bi-check"></i>');
+
+      }
+
+      let selected = $('> tbody > tr > td[line-number] > i.bi-check', '#<?= $tblID ?>');
+      if ( selected.length > 0) {
+        $('> thead > tr >td[line-number]', '#<?= $tblID ?>').html(selected.length);
+
+      }
+      else {
+        let n = $('> tbody > tr:not(.d-none) > td[line-number]', this).length;
+        $('> thead > tr >td[line-number]', '#<?= $tblID ?>').html(n);
+
+      }
 
     });
 
