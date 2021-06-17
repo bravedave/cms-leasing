@@ -277,7 +277,7 @@ class tenants extends _dao {
                         $a['name'] = $qp->name;
                         $a['phone'] = strings::IsMobilePhone( $qp->mobile) ? $qp->mobile : $qp->telephone;
                         $a['email'] = $qp->email;
-                        $a['type'] = 'tenant';
+                        $a['type'] = 'cotenant';
 
                         $this->db->Insert('_tens', $a);
 

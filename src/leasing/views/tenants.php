@@ -34,7 +34,7 @@ use strings;
         <td data-role="sort-header" data-key="street_index">address</td>
         <td>start</td>
         <td>end</td>
-        <td class="text-center">T/O</td>
+        <td class="text-center" title="Tenant/Co-Tenant/Approved Occupant">T/C/O</td>
         <td class="text-center">Source</td>
 
       </tr>
@@ -72,7 +72,7 @@ use strings;
 
           </td>
           <td><?= strings::asLocalDate( $dto->lease_end) ?></td>
-          <td class="text-center"><?= 'tenant' == $dto->type ? 'T' : ('occupant' == $dto->type ? 'O' : '?') ?></td>
+          <td class="text-center"><?= 'tenant' == $dto->type ? 'T' : ( 'cotenant' == $dto->type ? 'C' : ('occupant' == $dto->type ? 'O' : '?')) ?></td>
           <td class="text-center"><?= $dto->source ?></td>
 
         </tr>
