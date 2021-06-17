@@ -163,6 +163,44 @@ use strings;
   });
 
   $('#<?= $tblID ?>')
+  .on('mailout', function( e) {
+    let _form = $('<form method="post" action="<?= strings::url('email/bulk') ?>"></form>');
+
+    let cids = [];
+    let tot = 0;
+    $('> tbody > tr > td[line-number] > i.bi-check', '#<?= $tblID ?>')
+    .each( (i,el) => {
+      let _tr = $(el).closest('tr');
+      let _data = _tr.data();
+
+      if ( Number( _data.person_id) > 0) {
+        if ( cids.indexOf( _data.person_id) < 0) {
+          cids.push( _data.person_id);
+
+          $('<input type="hidden" name="contactID[]">')
+          .attr( 'value', _data.person_id)
+          .appendTo( _form);
+
+          tot++;
+
+        }
+
+      }
+
+    });
+
+    if ( tot > 0) {
+      form
+      .appendTo('body')
+      .submit();
+
+    }
+    else {
+      _.growl('nothing selected');
+
+    }
+
+  })
   .on( 'select-all', function(e) {
 
     $('> tbody > tr > td[line-number]', this)
@@ -253,7 +291,7 @@ use strings;
 
     _context.open( e);
 
-  });;
+  });
 
   $(document).ready( () => $('#<?= $tblID ?>').trigger('update-line-numbers'));
 
