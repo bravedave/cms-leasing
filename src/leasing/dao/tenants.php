@@ -187,7 +187,8 @@ class tenants extends _dao {
           people.`mobile`,
           people.`telephone`,
           people.`email`,
-          cp.`properties_id`
+          cp.`properties_id`,
+          ct.`ContactIDs`
         FROM
           `console_tenants` ct
             LEFT JOIN
@@ -237,6 +238,65 @@ class tenants extends _dao {
             // \sys::logger( sprintf('<%s> %s', $dto->people_id, __METHOD__));
 
           }
+
+          /*--- -------------------------------------------- ---*/
+          if ( $Contacts = (array)json_decode( $dto->ContactIDs)) {
+
+            foreach ( $Contacts as $Contact) {
+              $_sql = sprintf(
+                'SELECT
+                  `FileAs`,
+                  concat( `First`," ",`Last`) name,
+                  `Mobile`,
+                  `Email`
+                FROM
+                  `console_contacts`
+                WHERE
+                  `ConsoleID` = %s',
+                $this->quote( $Contact)
+
+              );
+
+              if ( $_res = $this->Result( $_sql)) {
+                if ( $_dto = $_res->dto()) {
+                  if ( trim( $_dto->name)) {
+                    if ( $_dto->Mobile != $dto->Mobile || $_dto->Email != $dto->Email) {
+                      $qp = \QuickPerson::find([
+                        'name' => $_dto->name,
+                        'mobile' => $_dto->Mobile,
+                        'email' => $_dto->Email
+
+                      ]);
+
+                      if ( in_array( $qp->id, $ids)) {
+                        if ( $debug) \sys::logger( sprintf('<%s/%s in multiple residence (d) !> %s', $dto->people_id, $dto->properties_id, __METHOD__));
+
+                      }
+                      else {
+                        $a['person_id'] = $qp->id;
+                        $a['name'] = $qp->name;
+                        $a['phone'] = strings::IsMobilePhone( $qp->mobile) ? $qp->mobile : $qp->telephone;
+                        $a['email'] = $qp->Email;
+                        $a['type'] = 'tenant';
+
+                        $this->db->Insert('_tens', $a);
+
+                      }
+
+                    }
+
+                  }
+
+                  // \sys::logger( sprintf('<%s> %s', $ct->name, __METHOD__));
+
+                }
+
+              }
+
+            }
+
+          }
+          /*--- -------------------------------------------- ---*/
 
           return $dto;
 
