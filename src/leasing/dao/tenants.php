@@ -260,7 +260,7 @@ class tenants extends _dao {
               if ( $_res = $this->Result( $_sql)) {
                 if ( $_dto = $_res->dto()) {
                   if ( trim( $_dto->name)) {
-                    if ( $_dto->Mobile != $dto->Mobile || $_dto->Email != $dto->Email) {
+                    if ( $_dto->Mobile != $dto->mobile || $_dto->Email != $dto->email) {
                       $qp = \QuickPerson::find([
                         'name' => $_dto->name,
                         'mobile' => $_dto->Mobile,
