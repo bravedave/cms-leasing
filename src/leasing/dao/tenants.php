@@ -309,13 +309,24 @@ class tenants extends _dao {
 
     if ( $debug) \sys::logger( sprintf('<%s> %s', $timer->elapsed(), __METHOD__));
 
-    $sql = 'SELECT
+    $sql = sprintf(
+      'SELECT
         t.*,
         p.address_street,
         p.street_index
       FROM `_tens` t
         LEFT JOIN `properties` p on p.id = t.properties_id
-      ORDER BY p.street_index ASC';
+      ORDER BY
+        p.street_index ASC,
+        CASE type
+          WHEN %s 1
+          WHEN %s 2
+          ELSE 3
+        END ASC',
+      $this->quote('tenant'),
+      $this->quote('cotenant')
+
+    );
 
     return $this->Result($sql);
 
