@@ -190,7 +190,7 @@ use strings;
     });
 
     if ( tot > 0) {
-      form
+      _form
       .appendTo('body')
       .submit();
 
