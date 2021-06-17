@@ -144,35 +144,71 @@ use strings;
   });
 
   $('> tbody > tr > td[line-number]', '#<?= $tblID ?>').each( ( i, td) => {
-    $(td).on( 'click', function( e) {
+    $(td)
+    .addClass('pointer')
+    .attr('title','click to select')
+    .on( 'click', function( e) {
       e.stopPropagation();
 
       let _me = $(this);
       let _data = _me.data();
       let _icon = $('i.bi-check', this);
-      if ( _icon.length > 0) {
-        _me.html( _data.line);
 
-      }
-      else {
-        _me.html('').append( '<i class="bi bi-check"></i>');
+      _me.html( _icon.length > 0 ? _data.line : '<i class="bi bi-check"></i>');
 
-      }
-
-      let selected = $('> tbody > tr > td[line-number] > i.bi-check', '#<?= $tblID ?>');
-      if ( selected.length > 0) {
-        $('> thead > tr >td[line-number]', '#<?= $tblID ?>').html(selected.length);
-
-      }
-      else {
-        let n = $('> tbody > tr:not(.d-none) > td[line-number]', this).length;
-        $('> thead > tr >td[line-number]', '#<?= $tblID ?>').html(n);
-
-      }
+      $('#<?= $tblID ?>').trigger('total-selected');
 
     });
 
   });
+
+  $('#<?= $tblID ?>')
+  .on( 'select-all', function(e) {
+
+    $('> tbody > tr > td[line-number]', this)
+    .each( ( i, td) => $(td).html('').append( '<i class="bi bi-check"></i>'));
+
+    $(this).trigger( 'total-selected');
+
+  })
+  .on( 'total-selected', function( e) {
+    let n = $('> tbody > tr > td[line-number] > i.bi-check', '#<?= $tblID ?>').length;
+    if ( n < 1) n = $('> tbody > tr:not(.d-none) > td[line-number]', '#<?= $tblID ?>').length;
+
+    $('> thead > tr >td[line-number]', '#<?= $tblID ?>').html(n);
+
+  });
+
+  $('> thead > tr >td[line-number]', '#<?= $tblID ?>')
+  .on( 'contextmenu', function( e) {
+    if ( e.shiftKey)
+      return;
+
+    e.stopPropagation();e.preventDefault();
+
+    _.hideContexts();
+
+    let _context = _.context();
+
+    _context.append( $('<a href="#">select all</a>').on( 'click', function( e) {
+      e.stopPropagation();e.preventDefault();
+
+      _context.close();
+      $('#<?= $tblID ?>').trigger('select-all');
+
+    }));
+
+    _context.append( $('<a href="#">select none</a>').on( 'click', function( e) {
+      e.stopPropagation();e.preventDefault();
+
+      _context.close();
+      $('#<?= $tblID ?>').trigger('update-line-numbers');
+
+    }));
+
+    _context.open( e);
+
+  });;
 
   $(document).ready( () => $('#<?= $tblID ?>').trigger('update-line-numbers'));
 
