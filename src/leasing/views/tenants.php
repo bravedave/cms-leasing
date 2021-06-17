@@ -53,6 +53,7 @@ use strings;
           data-properties_id="<?= $dto->properties_id ?>"
           data-person_id="<?= $dto->person_id ?>"
           data-name="<?= \htmlspecialchars( $dto->name) ?>"
+          data-hasemail="<?= strings::isEmail( $dto->email) ? 'yes' : 'no' ?>"
           data-street="<?= \htmlspecialchars( $dto->address_street) ?>"
           data-street_index="<?= \htmlspecialchars( $street_index) ?>"
           <?php if ( 'console' == $dto->source) print 'class="text-warning"'; ?>
@@ -143,7 +144,7 @@ use strings;
 
   });
 
-  $('> tbody > tr > td[line-number]', '#<?= $tblID ?>').each( ( i, td) => {
+  $('> tbody > tr[data-hasemail="yes"] > td[line-number]', '#<?= $tblID ?>').each( ( i, td) => {
     $(td)
     .addClass('pointer')
     .attr('title','click to select')
@@ -203,7 +204,7 @@ use strings;
   })
   .on( 'select-all', function(e) {
 
-    $('> tbody > tr > td[line-number]', this)
+    $('> tbody > tr[data-hasemail="yes"] > td[line-number]', this)
     .each( ( i, td) => $(td).html('').append( '<i class="bi bi-check"></i>'));
 
     $(this).trigger( 'total-selected');
