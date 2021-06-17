@@ -28,7 +28,7 @@ class tenants extends _dao {
 
   function getCurrentTenants( int $property_id = 0) {
     $debug = false;
-    // $debug = true;
+    $debug = true;
 
     $timer = \application::app()->timer();
 
