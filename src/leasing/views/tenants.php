@@ -143,7 +143,7 @@ use strings;
 
   });
 
-  $('> tbody > tr > td[line-number]', this).each( ( i, td) => {
+  $('> tbody > tr > td[line-number]', '#<?= $tblID ?>').each( ( i, td) => {
     $(td).on( 'click', function( e) {
       e.stopPropagation();
 
