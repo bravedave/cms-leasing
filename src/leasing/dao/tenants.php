@@ -312,13 +312,13 @@ class tenants extends _dao {
     $sql = sprintf(
       'SELECT
         t.*,
-        p.address_street,
-        p.street_index
+        p.`address_street`,
+        p.`street_index`
       FROM `_tens` t
-        LEFT JOIN `properties` p on p.id = t.properties_id
+        LEFT JOIN `properties` p on p.`id` = t.`properties_id`
       ORDER BY
-        p.street_index ASC,
-        CASE type
+        p.`street_index` ASC,
+        CASE `type`
           WHEN %s 1
           WHEN %s 2
           ELSE 3
