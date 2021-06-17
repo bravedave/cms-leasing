@@ -173,7 +173,44 @@ use strings;
   })
   .on( 'total-selected', function( e) {
     let n = $('> tbody > tr > td[line-number] > i.bi-check', '#<?= $tblID ?>').length;
-    if ( n < 1) n = $('> tbody > tr:not(.d-none) > td[line-number]', '#<?= $tblID ?>').length;
+    if ( n > 0) {
+      n = (n => {
+        return $('<div class="badge badge-primary"></div>')
+        .html(n)
+        .on( 'contextmenu', function( e) {
+          if ( e.shiftKey)
+            return;
+
+          e.stopPropagation();e.preventDefault();
+
+          _.hideContexts();
+
+          let _context = _.context();
+
+          _context.append( $('<a href="#">Bulk Mail</a>').on( 'click', function( e) {
+            e.stopPropagation();e.preventDefault();
+
+            _context.close();
+
+            _.ask({
+              title : 'Good Idea',
+              text : 'JUst for now - it\'s just a good idea'
+
+            });
+
+          }));
+
+          _context.open( e);
+
+        });;
+
+      })(n);
+
+    }
+    else {
+      n = $('> tbody > tr:not(.d-none) > td[line-number]', '#<?= $tblID ?>').length;
+
+    }
 
     $('> thead > tr >td[line-number]', '#<?= $tblID ?>').html(n);
 

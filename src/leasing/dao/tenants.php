@@ -304,10 +304,9 @@ class tenants extends _dao {
 
       }
 
+      if ( $debug) \sys::logger( sprintf('<checked tenants %ss> %s', $timer->elapsed(), __METHOD__));
+
     }
-
-
-    if ( $debug) \sys::logger( sprintf('<%s> %s', $timer->elapsed(), __METHOD__));
 
     $sql = sprintf(
       'SELECT
@@ -328,6 +327,7 @@ class tenants extends _dao {
 
     );
 
+    if ( $debug) \sys::logger( sprintf('<omplete %ss> %s', $timer->elapsed(), __METHOD__));
     return $this->Result($sql);
 
   }
