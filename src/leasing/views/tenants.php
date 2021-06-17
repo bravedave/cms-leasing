@@ -210,6 +210,9 @@ use strings;
 
   })
   .on( 'total-selected', function( e) {
+
+    let _me = $(this);
+
     let n = $('> tbody > tr > td[line-number] > i.bi-check', '#<?= $tblID ?>').length;
     if ( n > 0) {
       n = (n => {
@@ -230,11 +233,7 @@ use strings;
 
             _context.close();
 
-            _.ask({
-              title : 'Good Idea',
-              text : 'JUst for now - it\'s just a good idea'
-
-            });
+            _me.trigger('mailout');
 
           }));
 
