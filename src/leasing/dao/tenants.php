@@ -318,9 +318,9 @@ class tenants extends _dao {
         LEFT JOIN `properties` p on p.`id` = t.`properties_id`
       ORDER BY
         p.`street_index` ASC,
-        CASE `type`
-          WHEN %s 1
-          WHEN %s 2
+        CASE
+          WHEN `type` = %s 1
+          WHEN `type` = %s 2
           ELSE 3
         END ASC',
       $this->quote('tenant'),
