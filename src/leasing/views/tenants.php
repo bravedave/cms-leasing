@@ -200,6 +200,14 @@ use strings;
 
           }));
 
+          _context.append( $('<a href="#">select none</a>').on( 'click', function( e) {
+            e.stopPropagation();e.preventDefault();
+
+            _context.close();
+            $('#<?= $tblID ?>').trigger('update-line-numbers');
+
+          }));
+
           _context.open( e);
 
         });;
