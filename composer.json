@@ -2,6 +2,7 @@
     "name": "bravedave/cms-leasing",
     "description": "Leasing Extensions for CMS",
     "type": "library",
+    "minimum-stability": "dev",
     "require": {
         "bravedave/dvc": "*",
         "bravedave/cms-console": "*"
@@ -17,5 +18,11 @@
             "name": "David Bray",
             "email": "david@brayworth.com.au"
         }
-    ]
+    ],
+    "repositories": {
+        "cms-console": {
+            "type": "git",
+            "url": "https://github.com/bravedave/cms-console"
+        }
+    }
 }
