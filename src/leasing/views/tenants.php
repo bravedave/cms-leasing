@@ -34,7 +34,7 @@ use strings;
         <td data-role="sort-header" data-key="street_index">address</td>
         <td>start</td>
         <td>end</td>
-        <td data-role="sort-header" data-key="tenant_type" class="text-center" title="Tenant/Co-Tenant/Approved Occupant/Gaurantor">T/C/O/G</td>
+        <td data-role="sort-header" data-key="tenant_type" class="text-center" title="Tenant/Co-Tenant/Approved Occupant/Guarantor">T/C/O/G</td>
         <td class="text-center">Source</td>
 
       </tr>
@@ -54,7 +54,7 @@ use strings;
           $type = 'C';
         } elseif ('occupant' == $dto->type) {
           $type = 'O';
-        } elseif ('gaurantor' == $dto->type) {
+        } elseif ('guarantor' == $dto->type) {
           $type = 'G';
         }
       ?>
@@ -374,7 +374,7 @@ use strings;
         );
 
         _context.append(
-          $('<a href="#">Gaurantor</a>')
+          $('<a href="#">Guarantor</a>')
           .on('click', function(e) {
             e.stopPropagation();
             e.preventDefault();
