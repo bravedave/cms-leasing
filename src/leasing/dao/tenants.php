@@ -184,7 +184,7 @@ class tenants extends _dao {
                   'phone' => $tenant->phone,
                   'email' => $tenant->email,
                   'source' => 'lease',
-                  'type' => 'gaurantor'
+                  'type' => 'guarantor'
 
                 ];
 
