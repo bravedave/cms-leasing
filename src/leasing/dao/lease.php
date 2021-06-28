@@ -21,28 +21,33 @@ class lease extends _dao {
     $timer = \application::app()->timer();
 
     $where = [
-      sprintf('`property_id` = %d', $property_id),
-      sprintf('`lease_start` <= %s', $this->quote(date('Y-m-d'))),
-      sprintf('`lease_end` > %s', $this->quote(date('Y-m-d'))),
-      sprintf('( `vacate` IS NULL OR `vacate` = %s OR `vacate` > %s)', $this->quote(date('0000-00-00')), $this->quote(date('Y-m-d'))),
-      'NOT `lessor_signature` IS NULL'
+      sprintf('o.`property_id` = %d', $property_id),
+      sprintf('o.`lease_start` <= %s', $this->quote(date('Y-m-d'))),
+      sprintf('o.`lease_end` > %s', $this->quote(date('Y-m-d'))),
+      sprintf('( o.`vacate` IS NULL OR o.`vacate` = %s OR o.`vacate` > %s)', $this->quote(date('0000-00-00')), $this->quote(date('Y-m-d'))),
+      'NOT o.`lessor_signature` IS NULL'
 
     ];
 
     $sql = sprintf(
       'SELECT
-        `id`,
-        `property_id`,
-        `address_street`,
-        `tenants`,
-        `tenants_approved`,
-        `tenants_guarantors`,
-        `lease_start`,
-        `lease_start_inaugural`,
-        `lease_end`,
-        `vacate`
+        o.`id`,
+        o.`property_id`,
+        o.`address_street`,
+        o.`tenants`,
+        o.`tenants_approved`,
+        o.`tenants_guarantors`,
+        o.`lease_start`,
+        o.`lease_start_inaugural`,
+        o.`lease_end`,
+        o.`vacate`,
+        ct.`vacating` vacate_console
       FROM
-        `offer_to_lease`
+        `offer_to_lease` o
+          LEFT JOIN
+        console_properties cp ON cp.properties_id = o.property_id
+          LEFT JOIN
+        console_tenants ct ON ct.ConsolePropertyID = cp.ConsoleID
       WHERE
         %s
       ORDER BY `lease_start` DESC',
