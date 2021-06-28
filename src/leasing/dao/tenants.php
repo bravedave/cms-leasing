@@ -224,7 +224,7 @@ class tenants extends _dao {
         $this->quote(date('0000-00-00'),
         $this->quote(date('Y-m-d')),
         $this->quote(date('Y-m-d')),
-        $this->quote(date('0000-00-00'),
+        $this->quote(date('0000-00-00')),
         $this->quote(date('Y-m-d'))
 
       );
