@@ -76,6 +76,7 @@ class tenants extends _dao {
     $dbc->defineField('lease_start_inaugural', 'date');
     $dbc->defineField('lease_start', 'date');
     $dbc->defineField('lease_end', 'date');
+    $dbc->defineField('lease_id', 'bigint');
     $dbc->defineField('source', 'varchar');
     $dbc->defineField('type', 'varchar');
 
@@ -114,6 +115,7 @@ class tenants extends _dao {
                   'lease_start_inaugural' => $dto->lease_start_inaugural,
                   'lease_start' => $dto->lease_start,
                   'lease_end' => $dto->lease_end,
+                  'lease_id' => $dto->id,
                   'person_id' => $tenant->id,
                   'name' => $tenant->name,
                   'phone' => $tenant->phone,
