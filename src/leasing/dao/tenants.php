@@ -114,12 +114,14 @@ class tenants extends _dao {
                   'properties_id' => $dto->property_id,
 
                 ];
+
                 $a = [
                   'properties_id' => $dto->property_id,
                   'lease_start_inaugural' => $dto->lease_start_inaugural,
                   'lease_start' => $dto->lease_start,
                   'lease_end' => $dto->lease_end,
-                  'lease_id' => $dto->id,
+                  'lease_end' => $dto->lease_end,
+                  'vacate' => $dto->vacate,
                   'person_id' => $tenant->id,
                   'name' => $tenant->name,
                   'phone' => $tenant->phone,
@@ -152,6 +154,7 @@ class tenants extends _dao {
                   'lease_start_inaugural' => $dto->lease_start_inaugural,
                   'lease_start' => $dto->lease_start,
                   'lease_end' => $dto->lease_end,
+                  'vacate' => $dto->vacate,
                   'person_id' => $tenant->id,
                   'name' => $tenant->name,
                   'phone' => $tenant->phone,
@@ -184,6 +187,7 @@ class tenants extends _dao {
                   'lease_start_inaugural' => $dto->lease_start_inaugural,
                   'lease_start' => $dto->lease_start,
                   'lease_end' => $dto->lease_end,
+                  'vacate' => $dto->vacate,
                   'person_id' => $tenant->id,
                   'name' => $tenant->name,
                   'phone' => $tenant->phone,
@@ -258,6 +262,21 @@ class tenants extends _dao {
       if ($res = $this->Result($sql)) {
         $res->dtoSet(function ($dto) use (&$ids, $searchForIdProperty, $debug) {
 
+          $a = [
+            'properties_id' => $dto->properties_id,
+            'lease_start_inaugural' => $dto->lease_start_inaugural,
+            'lease_start' => $dto->lease_start,
+            'lease_end' => $dto->lease_end,
+            'vacate' => $dto->Vacating,
+            'person_id' => $dto->people_id,
+            'name' => $dto->name,
+            'phone' => strings::IsMobilePhone($dto->mobile) ? $dto->mobile : $dto->telephone,
+            'email' => $dto->email,
+            'source' => 'console',
+            'type' => 'tenant'
+
+          ];
+
           if ($searchForIdProperty($dto->people_id, $dto->properties_id, $ids) > -1) {
             if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (c) !> %s', $dto->people_id, $dto->properties_id, __METHOD__));
 
@@ -267,20 +286,6 @@ class tenants extends _dao {
               'properties_id' => $dto->properties_id,
 
             ];
-            $a = [
-              'properties_id' => $dto->properties_id,
-              'lease_start_inaugural' => $dto->lease_start_inaugural,
-              'lease_start' => $dto->lease_start,
-              'lease_end' => $dto->lease_end,
-              'person_id' => $dto->people_id,
-              'name' => $dto->name,
-              'phone' => strings::IsMobilePhone($dto->mobile) ? $dto->mobile : $dto->telephone,
-              'email' => $dto->email,
-              'source' => 'console',
-              'type' => 'tenant'
-
-            ];
-
             $this->db->Insert('_tens', $a);
 
             // sys::logger( sprintf('<%s> %s', $dto->people_id, __METHOD__));
