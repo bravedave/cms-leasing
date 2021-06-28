@@ -209,7 +209,7 @@ class tenants extends _dao {
     if (config::check_console_tenants) {
       $this->Q(
         sprintf(
-          'UPDATE _tens_ t
+          'UPDATE _tens t
               LEFT JOIN
             console_properties cp ON cp.properties_id = t.properties_id
               LEFT JOIN
