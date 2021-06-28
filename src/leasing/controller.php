@@ -90,7 +90,9 @@ class controller extends \Controller {
       if ( $id = $this->getPost( 'id')) {
         $dao = new dao\tenants;
         if ( $tens = $dao->getTenantsOfProperty( $id)) {
+          $dao = new dao\lease;
           Json::ack( $action)
+            ->add( 'lease', $dao->getCurrentLease($id))
             ->add( 'tenants', $tens);
 
         }

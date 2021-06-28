@@ -36,6 +36,7 @@ class lease extends _dao {
         `address_street`,
         `tenants`,
         `tenants_approved`,
+        `tenants_guarantors`,
         `lease_start`,
         `lease_start_inaugural`,
         `lease_end`,
