@@ -80,6 +80,7 @@ class tenants extends _dao {
     $dbc->defineField('lease_start', 'date');
     $dbc->defineField('lease_end', 'date');
     $dbc->defineField('vacate', 'date');
+    $dbc->defineField('vacate_console', 'date');
     $dbc->defineField('lease_id', 'bigint');
     $dbc->defineField('source', 'varchar');
     $dbc->defineField('type', 'varchar');
