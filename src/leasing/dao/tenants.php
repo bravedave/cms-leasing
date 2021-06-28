@@ -287,6 +287,10 @@ class tenants extends _dao {
 
             ];
             $this->db->Insert('_tens', $a);
+            if ( strtotime( $dto->Vacating) > 0) {
+              \sys::logger( sprintf('<vacating - %s> %s', $dto->Vacating, __METHOD__));
+
+            }
 
             // sys::logger( sprintf('<%s> %s', $dto->people_id, __METHOD__));
 
