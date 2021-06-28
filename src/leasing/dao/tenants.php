@@ -208,24 +208,27 @@ class tenants extends _dao {
 
     if (config::check_console_tenants) {
       $this->Q(
-        'UPDATE _tens_ t
-            LEFT JOIN
-          console_properties cp ON cp.properties_id = t.properties_id
-            LEFT JOIN
-          console_tenants ct ON ct.ConsolePropertyID = cp.ConsoleID
-        SET
-          vacate_console = ct.vacating
-        WHERE
-          (
-            (ct.`LeaseFirstStart` != %s AND ct.`LeaseFirstStart` <= %s)
-            OR ct.`LeaseStart` <= %s
-          )
-          AND (ct.`LeaseStop` = %s OR ct.`LeaseStop` > %s)',
-        $this->quote('0000-00-00'),
-        $this->quote(date('Y-m-d')),
-        $this->quote(date('Y-m-d')),
-        $this->quote('0000-00-00'),
-        $this->quote(date('Y-m-d'))
+        sprintf(
+          'UPDATE _tens_ t
+              LEFT JOIN
+            console_properties cp ON cp.properties_id = t.properties_id
+              LEFT JOIN
+            console_tenants ct ON ct.ConsolePropertyID = cp.ConsoleID
+          SET
+            vacate_console = ct.vacating
+          WHERE
+            (
+              (ct.`LeaseFirstStart` != %s AND ct.`LeaseFirstStart` <= %s)
+              OR ct.`LeaseStart` <= %s
+            )
+            AND (ct.`LeaseStop` = %s OR ct.`LeaseStop` > %s)',
+          $this->quote('0000-00-00'),
+          $this->quote(date('Y-m-d')),
+          $this->quote(date('Y-m-d')),
+          $this->quote('0000-00-00'),
+          $this->quote(date('Y-m-d'))
+
+        )
 
       );
 
