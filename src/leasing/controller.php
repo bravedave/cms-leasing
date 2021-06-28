@@ -36,7 +36,42 @@ class controller extends \Controller {
 	protected function posthandler() {
 		$action = $this->getPost('action');
 
-    if ( 'get-tenants-for-property' == $action) {
+    if ( 'get-lease-for-property' == $action) {
+      /*
+      ( _ => {
+        _.post({
+          url : _.url('leasing'),
+          data : {
+            action : 'get-lease-for-property',
+            id : 12324
+
+          }
+
+        }).then( d => console.log('ack' == d.response ? d.lease : d))
+
+      })(_brayworth_)
+
+       */
+      if ( $id = $this->getPost( 'id')) {
+        $dao = new dao\lease;
+        if ( $lease = $dao->getCurrentLease( $id)) {
+          Json::ack( $action)
+            ->add( 'lease', $lease);
+
+        }
+        else {
+          Json::nak( $action);
+
+        }
+
+      }
+      else {
+        Json::nak( $action);
+
+      }
+
+    }
+    elseif ( 'get-tenants-for-property' == $action) {
       /*
       ( _ => {
         _.post({
