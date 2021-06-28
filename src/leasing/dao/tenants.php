@@ -417,7 +417,12 @@ class tenants extends _dao {
 
     );
 
-    if ($debug) sys::logger(sprintf('<complete %ss> %s', $timer->elapsed(), __METHOD__));
+    if ($debug) {
+      $this->Q('DROP TABLE IF EXISTS _tens__');
+      $this->Q(sprintf('CREATE TABLE _tens__ AS %s', $sql));
+      sys::logger(sprintf('<complete %ss> %s', $timer->elapsed(), __METHOD__));
+
+    }
     return $this->Result($sql);
   }
 
