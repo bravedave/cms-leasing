@@ -74,7 +74,15 @@ use strings;
             <div class="text-muted font-italic small"><?= strings::asLocalDate($dto->lease_start_inaugural) ?></div>
 
           </td>
-          <td><?= strings::asLocalDate($dto->lease_end) ?></td>
+          <td>
+            <?= strings::asLocalDate($dto->lease_end) ?>
+            <div class="text-muted font-italic small"><?php
+              if ( strtotime( $dto->vacate) > 0) {
+                print strings::asLocalDate($dto->vacate);
+
+              }
+            ?></div>
+          </td>
           <td class="text-center"><?= $type ?></td>
           <td class="text-center"><?= $dto->source ?></td>
 
