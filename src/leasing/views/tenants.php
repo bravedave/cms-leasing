@@ -88,7 +88,7 @@ use strings;
               elseif ( strtotime( $dto->vacate_console) > 0) {
                 printf(
                   '<div class="text-muted font-italic small text-warning">%s</div>',
-                  strings::asLocalDate($dto->vacate)
+                  strings::asLocalDate($dto->vacate_console)
 
                 );
 
