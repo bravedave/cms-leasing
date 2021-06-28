@@ -35,6 +35,7 @@ class tenants extends _dao {
     $where = [
       sprintf('`lease_start` <= %s', $this->quote(date('Y-m-d'))),
       sprintf('`lease_end` > %s', $this->quote(date('Y-m-d'))),
+      sprintf('( `vacate` IS NULL OR `vacate` = %s OR vacate` > %s)', $this->quote(date('0000-00-00')), $this->quote(date('Y-m-d'))),
       'NOT `lessor_signature` IS NULL'
 
     ];
@@ -54,7 +55,8 @@ class tenants extends _dao {
         `tenants_guarantors`,
         `lease_start`,
         `lease_start_inaugural`,
-        `lease_end`
+        `lease_end`,
+        `vacate`
       FROM
         `offer_to_lease`
       WHERE
@@ -77,6 +79,7 @@ class tenants extends _dao {
     $dbc->defineField('lease_start_inaugural', 'date');
     $dbc->defineField('lease_start', 'date');
     $dbc->defineField('lease_end', 'date');
+    $dbc->defineField('vacate', 'date');
     $dbc->defineField('lease_id', 'bigint');
     $dbc->defineField('source', 'varchar');
     $dbc->defineField('type', 'varchar');
@@ -224,6 +227,7 @@ class tenants extends _dao {
           ct.`LeaseFirstStart` lease_start_inaugural,
           ct.`LeaseStart` lease_start,
           ct.`LeaseStop` lease_end,
+          ct.`Vacating`,
           cc.`people_id`,
           people.`name`,
           people.`mobile`,
