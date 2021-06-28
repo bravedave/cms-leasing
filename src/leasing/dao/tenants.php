@@ -51,6 +51,7 @@ class tenants extends _dao {
         `address_street`,
         `tenants`,
         `tenants_approved`,
+        `tenants_guarantors`,
         `lease_start`,
         `lease_start_inaugural`,
         `lease_end`
@@ -154,6 +155,38 @@ class tenants extends _dao {
                   'email' => $tenant->email,
                   'source' => 'lease',
                   'type' => 'occupant'
+
+                ];
+
+                $this->db->Insert('_tens', $a);
+              }
+            }
+          }
+        }
+
+        if ($dto->tenants_guarantors) {
+          if ($tenants = json_decode($dto->tenants_guarantors)) {
+            foreach ($tenants as $tenant) {
+              if ($searchForIdProperty($tenant->id, $dto->property_id, $ids)) {
+                if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (g) !> %s', $tenant->id, $dto->property_id, __METHOD__));
+
+              } else {
+                $ids[] = [
+                  'person_id' => $tenant->id,
+                  'properties_id' => $dto->property_id,
+
+                ];
+                $a = [
+                  'properties_id' => $dto->property_id,
+                  'lease_start_inaugural' => $dto->lease_start_inaugural,
+                  'lease_start' => $dto->lease_start,
+                  'lease_end' => $dto->lease_end,
+                  'person_id' => $tenant->id,
+                  'name' => $tenant->name,
+                  'phone' => $tenant->phone,
+                  'email' => $tenant->email,
+                  'source' => 'lease',
+                  'type' => 'guarantor'
 
                 ];
 
