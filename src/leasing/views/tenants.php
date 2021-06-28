@@ -76,12 +76,24 @@ use strings;
           </td>
           <td>
             <?= strings::asLocalDate($dto->lease_end) ?>
-            <div class="text-muted font-italic small"><?php
+            <?php
               if ( strtotime( $dto->vacate) > 0) {
-                print strings::asLocalDate($dto->vacate);
+                printf(
+                  '<div class="text-muted font-italic small">%s</div>',
+                  strings::asLocalDate($dto->vacate)
+
+                );
 
               }
-            ?></div>
+              elseif ( strtotime( $dto->vacate_console) > 0) {
+                printf(
+                  '<div class="text-muted font-italic small text-warning">%s</div>',
+                  strings::asLocalDate($dto->vacate)
+
+                );
+
+              }
+            ?>
           </td>
           <td class="text-center"><?= $type ?></td>
           <td class="text-center"><?= $dto->source ?></td>
