@@ -85,7 +85,7 @@ class tenants extends _dao {
 
     if ($res = $this->Result($sql)) {
       $ids = [];
-      $searchForIdProperty = function( $id, $property, $array) {
+      $searchForIdProperty = function( $id, $property, $array) : int {
         foreach ($array as $k => $v) {
           if ( $property == $v['properties_id'] && $id == $v['person_id']) {
             return $k;
@@ -94,7 +94,7 @@ class tenants extends _dao {
 
         }
 
-        return null;
+        return -1;
 
       };
 
@@ -102,7 +102,7 @@ class tenants extends _dao {
         if ($dto->tenants) {
           if ($tenants = json_decode($dto->tenants)) {
             foreach ($tenants as $tenant) {
-              if ($searchForIdProperty($tenant->id,$dto->property_id, $ids)) {
+              if ($searchForIdProperty($tenant->id,$dto->property_id, $ids) > -1) {
                 if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (a) !> %s', $tenant->id, $dto->property_id, __METHOD__));
 
               } else {
@@ -135,7 +135,7 @@ class tenants extends _dao {
         if ($dto->tenants_approved) {
           if ($tenants = json_decode($dto->tenants_approved)) {
             foreach ($tenants as $tenant) {
-              if ($searchForIdProperty($tenant->id, $dto->property_id, $ids)) {
+              if ($searchForIdProperty($tenant->id, $dto->property_id, $ids) > -1) {
                 if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (b) !> %s', $tenant->id, $dto->property_id, __METHOD__));
 
               } else {
@@ -167,7 +167,7 @@ class tenants extends _dao {
         if ($dto->tenants_guarantors) {
           if ($tenants = json_decode($dto->tenants_guarantors)) {
             foreach ($tenants as $tenant) {
-              if ($searchForIdProperty($tenant->id, $dto->property_id, $ids)) {
+              if ($searchForIdProperty($tenant->id, $dto->property_id, $ids) > -1) {
                 if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (g) !> %s', $tenant->id, $dto->property_id, __METHOD__));
 
               } else {
@@ -254,7 +254,7 @@ class tenants extends _dao {
       if ($res = $this->Result($sql)) {
         $res->dtoSet(function ($dto) use (&$ids, $searchForIdProperty, $debug) {
 
-          if ($searchForIdProperty($dto->people_id, $dto->properties_id, $ids)) {
+          if ($searchForIdProperty($dto->people_id, $dto->properties_id, $ids) > -1) {
             if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (c) !> %s', $dto->people_id, $dto->properties_id, __METHOD__));
 
           } else {
@@ -309,7 +309,7 @@ class tenants extends _dao {
               if ($_res = $this->Result($_sql)) {
                 if ($_dto = $_res->dto()) {
                   if ( $_dto->people_id) {
-                    if ($searchForIdProperty($_dto->people_id, $dto->properties_id, $ids)) {
+                    if ($searchForIdProperty($_dto->people_id, $dto->properties_id, $ids) > -1) {
                       // if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (d) !> %s', $qp->id, $dto->properties_id, __METHOD__));
 
                     } else {
@@ -340,7 +340,7 @@ class tenants extends _dao {
 
                       ]);
 
-                      if ($searchForIdProperty($qp->id, $dto->properties_id, $ids)) {
+                      if ($searchForIdProperty($qp->id, $dto->properties_id, $ids) > -1) {
                         // if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (d) !> %s', $qp->id, $dto->properties_id, __METHOD__));
 
                       } else {
