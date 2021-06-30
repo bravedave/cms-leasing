@@ -201,31 +201,56 @@ class tenants extends _dao {
     }
 
     if (config::check_console_tenants) {
-      $this->Q(
-        sprintf(
-          'UPDATE _tens t
-              LEFT JOIN
-            console_properties cp ON cp.properties_id = t.properties_id
-              LEFT JOIN
-            console_tenants ct ON ct.ConsolePropertyID = cp.ConsoleID
-          SET
-            vacate_console = ct.vacating
-          WHERE
-            (
-              (ct.`LeaseFirstStart` != %s AND ct.`LeaseFirstStart` <= %s)
-              OR ct.`LeaseStart` <= %s
-            )
-            AND (ct.`LeaseStop` = %s OR ct.`LeaseStop` > %s)',
-          $this->quote('0000-00-00'),
-          $this->quote(date('Y-m-d')),
-          $this->quote(date('Y-m-d')),
-          $this->quote('0000-00-00'),
-          $this->quote(date('Y-m-d'))
+      // $this->Q(
+      //   sprintf(
+      //     'UPDATE _tens t
+      //         LEFT JOIN
+      //       console_properties cp ON cp.properties_id = t.properties_id
+      //         LEFT JOIN
+      //       console_tenants ct ON ct.ConsolePropertyID = cp.ConsoleID
+      //     SET
+      //       vacate_console = ct.vacating
+      //     WHERE
+      //       (
+      //         (ct.`LeaseFirstStart` != %s AND ct.`LeaseFirstStart` <= %s)
+      //         OR ct.`LeaseStart` <= %s
+      //       )
+      //       AND (ct.`LeaseStop` = %s OR ct.`LeaseStop` > %s)',
+      //     $this->quote('0000-00-00'),
+      //     $this->quote(date('Y-m-d')),
+      //     $this->quote(date('Y-m-d')),
+      //     $this->quote('0000-00-00'),
+      //     $this->quote(date('Y-m-d'))
 
-        )
+      //   )
+
+      // );
+
+      $sql = sprintf(
+        'UPDATE _tens
+          SET
+            vacate_console = (SELECT
+                ct.vacating
+              FROM
+                console_properties cp
+                  LEFT JOIN
+                console_tenants ct ON ct.ConsolePropertyID = cp.ConsoleID
+              WHERE
+                cp.properties_id = _tens.properties_id
+                  AND ((ct.`LeaseFirstStart` != %s
+                  AND ct.`LeaseFirstStart` <= %s)
+                  OR ct.`LeaseStart` <= %s)
+                  AND (ct.`LeaseStop` = %s
+                  OR ct.`LeaseStop` > %s)
+                )',
+        $this->quote('0000-00-00'),
+        $this->quote(date('Y-m-d')),
+        $this->quote(date('Y-m-d')),
+        $this->quote('0000-00-00'),
+        $this->quote(date('Y-m-d'))
 
       );
-
+      $this->Q($sql);
 
       /**
        * are there any console tenants missing here
