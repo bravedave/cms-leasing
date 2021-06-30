@@ -89,26 +89,22 @@ class tenants extends _dao {
 
     if ($res = $this->Result($sql)) {
       $ids = [];
-      $searchForIdProperty = function( $id, $property, $array) : int {
+      $searchForIdProperty = function ($id, $property, $array): int {
         foreach ($array as $k => $v) {
-          if ( $property == $v['properties_id'] && $id == $v['person_id']) {
+          if ($property == $v['properties_id'] && $id == $v['person_id']) {
             return $k;
-
           }
-
         }
 
         return -1;
-
       };
 
       $res->dtoSet(function ($dto) use (&$ids, $searchForIdProperty, $debug) {
         if ($dto->tenants) {
           if ($tenants = json_decode($dto->tenants)) {
             foreach ($tenants as $tenant) {
-              if ($searchForIdProperty($tenant->id,$dto->property_id, $ids) > -1) {
+              if ($searchForIdProperty($tenant->id, $dto->property_id, $ids) > -1) {
                 if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (a) !> %s', $tenant->id, $dto->property_id, __METHOD__));
-
               } else {
                 $ids[] = [
                   'person_id' => $tenant->id,
@@ -143,7 +139,6 @@ class tenants extends _dao {
             foreach ($tenants as $tenant) {
               if ($searchForIdProperty($tenant->id, $dto->property_id, $ids) > -1) {
                 if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (b) !> %s', $tenant->id, $dto->property_id, __METHOD__));
-
               } else {
                 $ids[] = [
                   'person_id' => $tenant->id,
@@ -176,7 +171,6 @@ class tenants extends _dao {
             foreach ($tenants as $tenant) {
               if ($searchForIdProperty($tenant->id, $dto->property_id, $ids) > -1) {
                 if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (g) !> %s', $tenant->id, $dto->property_id, __METHOD__));
-
               } else {
                 $ids[] = [
                   'person_id' => $tenant->id,
@@ -306,7 +300,6 @@ class tenants extends _dao {
 
           if ($searchForIdProperty($dto->people_id, $dto->properties_id, $ids) > -1) {
             if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (c) !> %s', $dto->people_id, $dto->properties_id, __METHOD__));
-
           } else {
             $ids[] = [
               'person_id' => $dto->people_id,
@@ -314,9 +307,8 @@ class tenants extends _dao {
 
             ];
             $this->db->Insert('_tens', $a);
-            if ( strtotime( $dto->Vacating) > 0) {
-              \sys::logger( sprintf('<vacating - %s> %s', $dto->Vacating, __METHOD__));
-
+            if (strtotime($dto->Vacating) > 0) {
+              \sys::logger(sprintf('<vacating - %s> %s', $dto->Vacating, __METHOD__));
             }
 
             // sys::logger( sprintf('<%s> %s', $dto->people_id, __METHOD__));
@@ -348,7 +340,7 @@ class tenants extends _dao {
 
               if ($_res = $this->Result($_sql)) {
                 if ($_dto = $_res->dto()) {
-                  if ( $_dto->people_id) {
+                  if ($_dto->people_id) {
                     if ($searchForIdProperty($_dto->people_id, $dto->properties_id, $ids) > -1) {
                       // if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (d) !> %s', $qp->id, $dto->properties_id, __METHOD__));
 
@@ -367,9 +359,7 @@ class tenants extends _dao {
 
                       $this->db->Insert('_tens', $a);
                     }
-
-                  }
-                  elseif (trim($_dto->name)) {
+                  } elseif (trim($_dto->name)) {
                     if ($_dto->Mobile != $dto->mobile || $_dto->Email != $dto->email) {
 
                       $qp = \QuickPerson::find([
@@ -392,13 +382,11 @@ class tenants extends _dao {
 
                         $a['person_id'] = $qp->id;
                         $a['name'] = $qp->name;
-                        if ( isset($qp->mobile)) {
+                        if (isset($qp->mobile)) {
                           $a['phone'] = strings::IsMobilePhone($qp->mobile) ? $qp->mobile : $qp->telephone;
-
-                        }
-                        else {
-                          sys::dump( $_dto, null, false);
-                          sys::dump( $qp);
+                        } else {
+                          sys::dump($_dto, null, false);
+                          sys::dump($qp);
                           // $a['phone'] = $qp->telephone;
 
                         }
@@ -448,7 +436,6 @@ class tenants extends _dao {
       $this->Q('DROP TABLE IF EXISTS _tens__');
       $this->Q(sprintf('CREATE TABLE _tens__ AS %s', $sql));
       sys::logger(sprintf('<complete %ss> %s', $timer->elapsed(), __METHOD__));
-
     }
     return $this->Result($sql);
   }
@@ -456,6 +443,7 @@ class tenants extends _dao {
   function getTenantsLease(int $tenant_id) {
     $debug = false;
     // $debug = true;
+    // $debug = $tenant_id > 0;
 
     $timer = \application::app()->timer();
 
@@ -472,6 +460,8 @@ class tenants extends _dao {
         `id`,
         `property_id`,
         `address_street`,
+        `address_suburb`,
+        `address_postcode`,
         `tenants`,
         `tenants_approved`,
         `lease_start`,
@@ -498,6 +488,8 @@ class tenants extends _dao {
                 $a = [
                   'properties_id' => $dto->property_id,
                   'address_street' => $dto->address_street,
+                  'address_suburb' => $dto->address_suburb,
+                  'address_postcode' => $dto->address_postcode,
                   'lease_start_inaugural' => $dto->lease_start_inaugural,
                   'lease_start' => $dto->lease_start,
                   'lease_end' => $dto->lease_end,
@@ -517,6 +509,155 @@ class tenants extends _dao {
         }
       }
     }
+
+    /*--- -----[check in console]----- ---*/
+    if (config::check_console_tenants) {
+      $sql = sprintf(
+        'SELECT
+          TenantIDs
+        FROM
+          `console_contacts` cc
+        WHERE
+          cc.`people_id` = %d',
+        $tenant_id
+
+      );
+
+      if ($res = $this->Result($sql)) {
+        if ($dto = $res->dto()) {
+          if ($dto->TenantIDs) {
+            $tens = (array)json_decode($dto->TenantIDs);
+            if ($tens) {
+              if (1 == count($tens)) {
+                if ($debug) sys::logger(sprintf('<%s> %s', implode('><', $tens), __METHOD__));
+
+                $where = [
+                  sprintf('( ct.Vacating IS NULL OR ct.Vacating = %s OR ct.Vacating > %s)', $this->quote(date('0000-00-00')), $this->quote(date('Y-m-d'))),
+                  sprintf('((ct.`LeaseFirstStart` != %s AND ct.`LeaseFirstStart` <= %s) OR ct.`LeaseStart` <= %s)', $this->quote('0000-00-00'), $this->quote(date('Y-m-d')), $this->quote(date('Y-m-d'))),
+                  sprintf('(ct.`LeaseStop` = %s OR ct.`LeaseStop` > %s)', $this->quote('0000-00-00'), $this->quote(date('Y-m-d'))),
+                  sprintf('ct.TenantID = %d', $tens[0])
+
+                ];
+
+                $sql = sprintf(
+                  'SELECT
+                    ct.`id`,
+                    ct.`ContactID`,
+                    ct.`ConsolePropertyID`,
+                    ct.`LeaseFirstStart` lease_start_inaugural,
+                    ct.`LeaseStart` lease_start,
+                    ct.`LeaseStop` lease_end,
+                    ct.`Vacating`,
+                    cc.`people_id`,
+                    people.`name`,
+                    people.`mobile`,
+                    people.`telephone`,
+                    people.`email`,
+                    p.`address_street`,
+                    p.`address_suburb`,
+                    p.`address_postcode`,
+                    cp.`properties_id`,
+                    ct.`ContactIDs`
+                  FROM
+                    `console_tenants` ct
+                      LEFT JOIN
+                    `console_contacts` cc ON cc.ConsoleID = ct.ContactID
+                      LEFT JOIN
+                    `people` ON people.id = cc.people_id
+                      LEFT JOIN
+                    `console_properties` cp ON cp.ConsoleID = ct.ConsolePropertyID
+                      LEFT JOIN
+                    `properties` p ON p.id = cp.properties_id
+                  WHERE
+                    %s',
+                  implode(' AND ', $where)
+
+                );
+                if ($_res = $this->Result($sql)) {
+                  if ($_dto = $_res->dto()) {
+                    $a = [
+                      'properties_id' => $_dto->properties_id,
+                      'address_street' => $_dto->address_street,
+                      'address_suburb' => $_dto->address_suburb,
+                      'address_postcode' => $_dto->address_postcode,
+                      'lease_start_inaugural' => $_dto->lease_start_inaugural,
+                      'lease_start' => $_dto->lease_start,
+                      'lease_end' => $_dto->lease_end,
+                      'person_id' => $_dto->people_id,
+                      'name' => $_dto->name,
+                      'phone' => strings::isMobilePhone($_dto->mobile) ? $_dto->mobile : $_dto->telephone,
+                      'email' => $_dto->email,
+                      'source' => 'console',
+                      'type' => 'tenant'
+
+                    ];
+
+                    if ($_dto->people_id == $tenant_id) {
+
+                      return (object)$a;
+                    } else {
+                      if ($debug) sys::logger(sprintf('<found primary, need co-tenant from console - %s> %s', $timer->elapsed(), __METHOD__));
+
+                      if ($Contacts = (array)json_decode($_dto->ContactIDs)) {
+
+                        foreach ($Contacts as $Contact) {
+                          $sql = sprintf(
+                            'SELECT
+                              cc.`FileAs`,
+                              concat( cc.`First`," ",cc.`Last`) name,
+                              cc.`Home`,
+                              cc.`Mobile`,
+                              cc.`Email`,
+                              cc.`people_id`,
+                              p.`name`
+                            FROM
+                              `console_contacts` cc
+                                LEFT JOIN
+                              `people` p ON p.`id` = cc.`people_id`
+                            WHERE
+                              cc.`ConsoleID` = %s',
+                            $this->quote($Contact)
+
+                          );
+
+                          if ($__res = $this->Result($sql)) {
+                            if ($__dto = $__res->dto()) {
+                              if ($__dto->people_id == $tenant_id) {
+
+                                $a['person_id'] = $__dto->people_id;
+                                $a['name'] = $__dto->name;
+                                $a['phone'] = strings::IsMobilePhone($__dto->Mobile) ? $__dto->Mobile : $__dto->Home;
+                                $a['email'] = $__dto->Email;
+                                $a['type'] = 'cotenant';
+
+                                if ($debug) sys::logger(sprintf('<found co-tenant from console - %s> %s', $timer->elapsed(), __METHOD__));
+                                return (object)$a;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+
+                    if ($debug) sys::logger(sprintf('<console lease found> %s', __METHOD__));
+                  } else {
+                    if ($debug) sys::logSQL(sprintf('<%s> %s', $sql, __METHOD__));
+                    sys::logger(sprintf('<there are no leases in console (result)> %s', __METHOD__));
+                  }
+                } else {
+                  sys::logger(sprintf('<there are no leases in console (query fail)> %s', __METHOD__));
+                }
+              } else {
+                sys::logger(sprintf('<there are %s tenancies> %s', count($tens), __METHOD__));
+              }
+            }
+          }
+        }
+      }
+
+      if ($debug) sys::logger(sprintf('<checked console for tenants %s> %s', $timer->elapsed(), __METHOD__));
+    }
+    /*--- ---[end check in console]--- ---*/
 
     if ($debug) sys::logger(sprintf('<%s> %s', $timer->elapsed(), __METHOD__));
 
