@@ -466,7 +466,8 @@ class tenants extends _dao {
         `tenants_approved`,
         `lease_start`,
         `lease_start_inaugural`,
-        `lease_end`
+        `lease_end`,
+        `vacate`
       FROM
         `offer_to_lease`
       WHERE
@@ -493,6 +494,7 @@ class tenants extends _dao {
                   'lease_start_inaugural' => $dto->lease_start_inaugural,
                   'lease_start' => $dto->lease_start,
                   'lease_end' => $dto->lease_end,
+                  'vacate' => $dto->vacate,
                   'person_id' => $tenant->id,
                   'name' => $tenant->name,
                   'phone' => $tenant->phone,
@@ -583,6 +585,7 @@ class tenants extends _dao {
                       'lease_start_inaugural' => $_dto->lease_start_inaugural,
                       'lease_start' => $_dto->lease_start,
                       'lease_end' => $_dto->lease_end,
+                      'vacate' => $_dto->Vacating,
                       'person_id' => $_dto->people_id,
                       'name' => $_dto->name,
                       'phone' => strings::isMobilePhone($_dto->mobile) ? $_dto->mobile : $_dto->telephone,
