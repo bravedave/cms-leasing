@@ -17,7 +17,7 @@ use strings;
 class controller extends \Controller {
   protected $viewPath = __DIR__ . '/views/';
 
-	protected function _index() {
+  protected function _index() {
 
     // 'searchFocus' => false,
     $this->render([
@@ -25,18 +25,17 @@ class controller extends \Controller {
       'primary' => 'blank',
       'secondary' => 'index',
       'data' => (object)[
-        'pageUrl' => strings::url( $this->route)
+        'pageUrl' => strings::url($this->route)
 
       ],
 
     ]);
-
   }
 
-	protected function posthandler() {
-		$action = $this->getPost('action');
+  protected function posthandler() {
+    $action = $this->getPost('action');
 
-    if ( 'get-lease-for-property' == $action) {
+    if ('get-lease-for-property' == $action) {
       /*
       ( _ => {
         _.post({
@@ -52,26 +51,45 @@ class controller extends \Controller {
       })(_brayworth_)
 
        */
-      if ( $id = $this->getPost( 'id')) {
+      if ($id = $this->getPost('id')) {
         $dao = new dao\lease;
-        if ( $lease = $dao->getCurrentLease( $id)) {
-          Json::ack( $action)
-            ->add( 'lease', $lease);
-
+        if ($lease = $dao->getCurrentLease($id)) {
+          Json::ack($action)
+            ->add('lease', $lease);
+        } else {
+          Json::nak($action);
         }
-        else {
-          Json::nak( $action);
+      } else {
+        Json::nak($action);
+      }
+    } elseif ('get-maintenance-instructions' == $action) {
+      /*
+      ( _ => {
+        _.post({
+          url : _.url('leasing'),
+          data : {
+            action : 'get-maintenance-instructions',
+            id : 52728
 
+          }
+
+        }).then( d => console.log(d))
+
+      })(_brayworth_)
+
+       */
+      if ($id = (int)$this->getPost('id')) {
+        $dao = new dao\maintenance;
+        if ($res = $dao->getSchedule($id)) {
+          \Json::ack($action)
+          ->add('data', $res->dtoSet());
+        } else {
+          \Json::nak($action);
         }
-
+      } else {
+        \Json::nak($action);
       }
-      else {
-        Json::nak( $action);
-
-      }
-
-    }
-    elseif ( 'get-tenants-for-property' == $action) {
+    } elseif ('get-tenants-for-property' == $action) {
       /*
       ( _ => {
         _.post({
@@ -87,28 +105,20 @@ class controller extends \Controller {
       })(_brayworth_)
 
        */
-      if ( $id = $this->getPost( 'id')) {
+      if ($id = $this->getPost('id')) {
         $dao = new dao\tenants;
-        if ( $tens = $dao->getTenantsOfProperty( $id)) {
+        if ($tens = $dao->getTenantsOfProperty($id)) {
           $dao = new dao\lease;
-          Json::ack( $action)
-            ->add( 'lease', $dao->getCurrentLease($id))
-            ->add( 'tenants', $tens);
-
+          Json::ack($action)
+            ->add('lease', $dao->getCurrentLease($id))
+            ->add('tenants', $tens);
+        } else {
+          Json::nak($action);
         }
-        else {
-          Json::nak( $action);
-
-        }
-
+      } else {
+        Json::nak($action);
       }
-      else {
-        Json::nak( $action);
-
-      }
-
-    }
-    elseif ( 'get-tenants-lease' == $action) {
+    } elseif ('get-tenants-lease' == $action) {
       /*
       ( _ => {
         _.post({
@@ -124,33 +134,23 @@ class controller extends \Controller {
       })(_brayworth_)
 
        */
-      if ( $id = $this->getPost( 'id')) {
+      if ($id = $this->getPost('id')) {
         $dao = new dao\tenants;
-        if ( $lease = $dao->getTenantsLease( $id)) {
-          Json::ack( $action)
-            ->add( 'lease', $lease);
-
+        if ($lease = $dao->getTenantsLease($id)) {
+          Json::ack($action)
+            ->add('lease', $lease);
+        } else {
+          Json::nak($action);
         }
-        else {
-          Json::nak( $action);
-
-        }
-
+      } else {
+        Json::nak($action);
       }
-      else {
-        Json::nak( $action);
-
-      }
-
+    } else {
+      parent::postHandler();
     }
-    else {
-			parent::postHandler();
-
-    }
-
   }
 
-	public function tenants() {
+  public function tenants() {
     $dao = new dao\tenants;
     $this->data = (object)[
       'tenants' => $dao->getCurrentTenants()
@@ -163,12 +163,10 @@ class controller extends \Controller {
       'secondary' => 'index',
       'data' => (object)[
         'searchFocus' => false,
-        'pageUrl' => strings::url( $this->route . '/tenants')
+        'pageUrl' => strings::url($this->route . '/tenants')
 
       ],
 
     ]);
-
   }
-
 }
