@@ -242,6 +242,9 @@ class tenants extends _dao {
                   OR ct.`LeaseStart` <= %s)
                   AND (ct.`LeaseStop` = %s
                   OR ct.`LeaseStop` > %s)
+              ORDER BY
+                ct.`LeaseStart` DESC
+                LIMIT 1
                 )',
         $this->quote('0000-00-00'),
         $this->quote(date('Y-m-d')),
