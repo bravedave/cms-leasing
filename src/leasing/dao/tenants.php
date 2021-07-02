@@ -319,7 +319,7 @@ class tenants extends _dao {
             'vacate' => $dto->Vacating,
             'person_id' => $dto->people_id,
             'name' => $dto->name,
-            'phone' => strings::IsMobilePhone($dto->mobile) ? $dto->mobile : $dto->telephone,
+            'phone' => strings::isMobilePhone($dto->mobile) ? $dto->mobile : $dto->telephone,
             'email' => $dto->email,
             'source' => 'console',
             'type' => 'tenant'
