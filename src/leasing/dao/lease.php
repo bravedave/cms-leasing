@@ -21,10 +21,23 @@ class lease extends _dao {
     $timer = \application::app()->timer();
 
     $where = [
-      sprintf('o.`property_id` = %d', $property_id),
-      sprintf('o.`lease_start` <= %s', $this->quote(date('Y-m-d'))),
-      sprintf('o.`lease_end` > %s', $this->quote(date('Y-m-d'))),
-      sprintf('( o.`vacate` IS NULL OR o.`vacate` = %s OR o.`vacate` > %s)', $this->quote(date('0000-00-00')), $this->quote(date('Y-m-d'))),
+      sprintf(
+        'o.`property_id` = %d',
+        $property_id
+      ),
+      sprintf(
+        'o.`lease_start` <= %s',
+        $this->quote(date('Y-m-d'))
+      ),
+      sprintf(
+        'o.`lease_end` > %s',
+        $this->quote(date('Y-m-d'))
+      ),
+      sprintf(
+        '( o.`vacate` IS NULL OR o.`vacate` = %s OR o.`vacate` > %s)',
+        $this->quote(date('0000-00-00')),
+        $this->quote(date('Y-m-d'))
+      ),
       'NOT o.`lessor_signature` IS NULL'
 
     ];
@@ -40,14 +53,9 @@ class lease extends _dao {
         o.`lease_start`,
         o.`lease_start_inaugural`,
         o.`lease_end`,
-        o.`vacate`,
-        ct.`vacating` vacate_console
+        o.`vacate`
       FROM
         `offer_to_lease` o
-          LEFT JOIN
-        console_properties cp ON cp.properties_id = o.property_id
-          LEFT JOIN
-        console_tenants ct ON ct.ConsolePropertyID = cp.ConsoleID
       WHERE
         %s
       ORDER BY `lease_start` DESC',
@@ -63,5 +71,4 @@ class lease extends _dao {
 
     return null;
   }
-
 }
