@@ -53,7 +53,6 @@ class lease extends _dao {
         o.`lease_start`,
         o.`lease_start_inaugural`,
         o.`lease_end`,
-        o.`lease_term`,
         o.`vacate`
       FROM
         `offer_to_lease` o
