@@ -61,7 +61,9 @@ class tenants extends _dao {
         `offer_to_lease`
       WHERE
         %s
-      ORDER BY `lease_start` DESC',
+      ORDER BY
+        `lessor_signature_time` DESC
+      LIMIT 1',
       implode(' AND ', $where)
 
     );
