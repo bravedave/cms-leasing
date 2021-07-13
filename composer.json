@@ -1,28 +1,37 @@
 {
-    "name": "bravedave/cms-leasing",
-    "description": "Leasing Extensions for CMS",
-    "type": "library",
-    "minimum-stability": "dev",
-    "require": {
-        "bravedave/dvc": "*",
-        "bravedave/cms-console": "*"
-    },
-    "autoload": {
-        "psr-4": {
-            "cms\\leasing\\": "src/leasing/"
-        }
-    },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "David Bray",
-            "email": "david@brayworth.com.au"
-        }
-    ],
-    "repositories": {
-        "cms-console": {
-            "type": "git",
-            "url": "https://github.com/bravedave/cms-console"
-        }
+  "name": "bravedave/cms-leasing",
+  "description": "Leasing Extensions for CMS",
+  "type": "library",
+  "minimum-stability": "dev",
+  "require": {
+    "bravedave/dvc": "*",
+    "bravedave/cms-console": "*",
+    "bravedave/offer_to_lease": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "cms\\leasing\\": "src/leasing/"
     }
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "David Bray",
+      "email": "david@brayworth.com.au"
+    }
+  ],
+  "repositories": {
+    "cms-console": {
+      "type": "git",
+      "url": "https://github.com/bravedave/cms-console"
+    },
+    "sms": {
+      "type": "git",
+      "url": "https://github.com/bravedave/sms"
+    },
+    "offer_to_lease": {
+      "type": "git",
+      "url": "https://github.com/bravedave/offer_to_lease"
+    }
+  }
 }

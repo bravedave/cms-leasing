@@ -11,6 +11,7 @@
 namespace cms\leasing\dao;
 
 use dao\_dao;
+use dvc\offertolease\dao\offer_to_lease;
 use sys;
 
 class lease extends _dao {
@@ -53,6 +54,8 @@ class lease extends _dao {
         o.`lease_start`,
         o.`lease_start_inaugural`,
         o.`lease_end`,
+        o.`rent`,
+        o.`rent_bond`,
         o.`vacate`
       FROM
         `offer_to_lease` o
@@ -66,7 +69,12 @@ class lease extends _dao {
     if ($debug) sys::logSQL(sprintf('<%s> %s', $sql, __METHOD__));
 
     if ($res = $this->Result($sql)) {
-      return $res->dto();
+      if ($dto = $res->dto()) {
+        $otl = new offer_to_lease;
+        $dto->lease_term = (int)$otl->getLeaseTermMonths($dto);
+
+        return $dto;
+      }
     }
 
     return null;
