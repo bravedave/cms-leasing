@@ -61,8 +61,8 @@ class tenants extends _dao {
         `offer_to_lease`
       WHERE
         %s
-      GROUP BY `property_id`
       ORDER BY
+        `property_id` ASC,
         `lessor_signature_time` DESC',
       implode(' AND ', $where)
 
@@ -91,6 +91,7 @@ class tenants extends _dao {
 
     if ($res = $this->Result($sql)) {
       $ids = [];
+      $property_ids = [];
       $searchForIdProperty = function ($id, $property, $array): int {
         foreach ($array as $k => $v) {
           if ($property == $v['properties_id'] && $id == $v['person_id']) {
@@ -101,7 +102,12 @@ class tenants extends _dao {
         return -1;
       };
 
-      $res->dtoSet(function ($dto) use (&$ids, $searchForIdProperty, $debug) {
+      $res->dtoSet(function ($dto) use (&$ids, &$property_ids, $searchForIdProperty, $debug) {
+        if (in_array($dto->property_id, $property_ids)) {
+          return null;
+        }
+        $property_ids[] = $dto->property_id;
+
         if ($dto->tenants) {
           if ($tenants = json_decode($dto->tenants)) {
             foreach ($tenants as $tenant) {
