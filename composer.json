@@ -5,8 +5,7 @@
   "minimum-stability": "dev",
   "require": {
     "bravedave/dvc": "*",
-    "bravedave/cms-console": "*",
-    "bravedave/offer_to_lease": "*"
+    "bravedave/cms-console": "*"
   },
   "autoload": {
     "psr-4": {

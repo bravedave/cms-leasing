@@ -11,40 +11,40 @@
 namespace cms\leasing\dao;
 
 use dao\_dao;
-use dvc\offertolease\dao\offer_to_lease;
-use sys;
+use sys, dvc;
 
 class lease extends _dao {
   function getCurrentLease(int $property_id) {
     $debug = false;
     // $debug = true;
 
-    $timer = \application::app()->timer();
+    // $timer = \application::app()->timer();
 
-    $where = [
-      sprintf(
-        'o.`property_id` = %d',
-        $property_id
-      ),
-      sprintf(
-        'o.`lease_start` <= %s',
-        $this->quote(date('Y-m-d'))
-      ),
-      sprintf(
-        'o.`lease_end` > %s',
-        $this->quote(date('Y-m-d'))
-      ),
-      sprintf(
-        '( o.`vacate` IS NULL OR o.`vacate` = %s OR o.`vacate` > %s)',
-        $this->quote(date('0000-00-00')),
-        $this->quote(date('Y-m-d'))
-      ),
-      'NOT o.`lessor_signature` IS NULL'
+    if (class_exists('dvc\offertolease\dao\offer_to_lease')) {
+      $where = [
+        sprintf(
+          'o.`property_id` = %d',
+          $property_id
+        ),
+        sprintf(
+          'o.`lease_start` <= %s',
+          $this->quote(date('Y-m-d'))
+        ),
+        sprintf(
+          'o.`lease_end` > %s',
+          $this->quote(date('Y-m-d'))
+        ),
+        sprintf(
+          '( o.`vacate` IS NULL OR o.`vacate` = %s OR o.`vacate` > %s)',
+          $this->quote(date('0000-00-00')),
+          $this->quote(date('Y-m-d'))
+        ),
+        'NOT o.`lessor_signature` IS NULL'
 
-    ];
+      ];
 
-    $sql = sprintf(
-      'SELECT
+      $sql = sprintf(
+        'SELECT
         o.`id`,
         o.`property_id`,
         o.`address_street`,
@@ -62,18 +62,19 @@ class lease extends _dao {
       WHERE
         %s
       ORDER BY `lease_start` DESC',
-      implode(' AND ', $where)
+        implode(' AND ', $where)
 
-    );
+      );
 
-    if ($debug) sys::logSQL(sprintf('<%s> %s', $sql, __METHOD__));
+      if ($debug) sys::logSQL(sprintf('<%s> %s', $sql, __METHOD__));
 
-    if ($res = $this->Result($sql)) {
-      if ($dto = $res->dto()) {
-        $otl = new offer_to_lease;
-        $dto->lease_term = (int)$otl->getLeaseTermMonths($dto);
+      if ($res = $this->Result($sql)) {
+        if ($dto = $res->dto()) {
+          $otl = new dvc\offertolease\dao\offer_to_lease;
+          $dto->lease_term = (int)$otl->getLeaseTermMonths($dto);
 
-        return $dto;
+          return $dto;
+        }
       }
     }
 
