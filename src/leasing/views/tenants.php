@@ -389,7 +389,7 @@ use strings;
                   .append($('<div class="badge badge-primary"></div>').html(filterPM));
 
                 $('#<?= $srch ?>').trigger('search');
-                localStorage.setItem('properties-forrent-filter-pm', filterPM);
+                localStorage.setItem('rental-tenants-filter-pm', filterPM);
 
               })
               .on('reconcile', function() {
@@ -414,7 +414,7 @@ use strings;
               $('#<?= $srch ?>')
                 .trigger('search');
 
-              localStorage.removeItem('properties-forrent-filter-pm');
+              localStorage.removeItem('rental-tenants-filter-pm');
 
             })
           );
@@ -534,7 +534,30 @@ use strings;
 
       });
 
-    $(document).ready(() => $('#<?= $tblID ?>').trigger('update-line-numbers'));
+    $('#<?= $tblID ?>')
+      .on('restore-filter', function(e) {
+
+        let pmFilter = localStorage.getItem('rental-tenants-filter-pm');
+        if (!!pmFilter) {
+          filterPM = pmFilter;
+          $('#<?= $tblID ?> > thead > tr > td[PM]')
+            .html('')
+            .append($('<div class="badge badge-primary"></div>').html(filterPM));
+
+          $('#<?= $srch ?>')
+            .trigger('search');
+        } else {
+          $('#<?= $tblID ?>')
+            .trigger('update-line-numbers');
+
+        }
+
+        $('#<?= $tblID ?>')
+          .addClass('show');
+
+        // console.log('restore-filter');
+
+      });
 
     let srchidx = 0;
     let liCutOff = '';
@@ -584,6 +607,9 @@ use strings;
         }
 
       });
+
+    $('#<?= $tblID ?>')
+      .trigger('restore-filter');
 
   })(_brayworth_);
 </script>
