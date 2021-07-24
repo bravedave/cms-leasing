@@ -437,9 +437,15 @@ class tenants extends _dao {
       'SELECT
         t.*,
         p.`address_street`,
+        p.`property_manager`,
+        u.`name` property_manager_name,
         p.`street_index`
-      FROM `_tens` t
-        LEFT JOIN `properties` p on p.`id` = t.`properties_id`
+      FROM
+        `_tens` t
+          LEFT JOIN
+        `properties` p ON p.`id` = t.`properties_id`
+          LEFT JOIN
+        `users` u ON p.`property_manager` = u.`id`
       ORDER BY
         p.`street_index` ASC,
         CASE `type`
