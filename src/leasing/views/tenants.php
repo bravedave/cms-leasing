@@ -58,8 +58,28 @@ use strings;
         } elseif ('guarantor' == $dto->type) {
           $type = 'G';
         }
+
+        printf(
+          '<tr
+            data-properties_id="%s"
+            data-person_id="%s"
+            data-name="%s"
+            data-hasemail="%s"
+            data-street="%s"
+            data-street_index="%s"
+            data-tenant_type="%s"
+            class="%s">',
+            $dto->properties_id,
+            $dto->person_id,
+            htmlspecialchars($dto->name),
+            strings::isEmail($dto->email) ? 'yes' : 'no',
+            htmlspecialchars($dto->address_street),
+            htmlspecialchars($street_index),
+            $type,
+            'console' == $dto->source ? 'text-warning' : ''
+
+        );
       ?>
-        <tr data-properties_id="<?= $dto->properties_id ?>" data-person_id="<?= $dto->person_id ?>" data-name="<?= htmlspecialchars($dto->name) ?>" data-hasemail="<?= strings::isEmail($dto->email) ? 'yes' : 'no' ?>" data-street="<?= htmlspecialchars($dto->address_street) ?>" data-street_index="<?= htmlspecialchars($street_index) ?>" data-tenant_type="<?= $type ?>" <?php if ('console' == $dto->source) print 'class="text-warning"'; ?>>
 
           <td class="small text-center" line-number></td>
           <td>
@@ -100,8 +120,10 @@ use strings;
           <td class="text-center"><?= $dto->source ?></td>
           <td class="text-center"><?= strings::initials( $dto->property_manager_name) ?></td>
 
-        </tr>
-      <?php } ?>
+
+      <?php
+      print '</tr>';
+    } ?>
 
     </tbody>
 
@@ -123,50 +145,61 @@ use strings;
 
       });
 
+    let pms = [];
     $('tbody > tr', '#<?= $tblID ?>')
       .each((i, tr) => {
         let _tr = $(tr)
+        let _data = _tr.data();
 
-        _tr.on('contextmenu', function(e) {
-          if (e.shiftKey)
-            return;
+        if ('' != String(_data.pm)) {
+          if (pms.indexOf(String(_data.pm)) < 0) {
+            pms.push(String(_data.pm));
 
-          e.stopPropagation();
-          e.preventDefault();
+          }
 
-          _.hideContexts();
+        }
 
-          let _context = _.context();
-          let _tr = $(this);
-          let _data = _tr.data();
+        _tr
+          .on('contextmenu', function(e) {
+            if (e.shiftKey)
+              return;
 
-          _context.append(
-            $('<a target="_blank"></a>')
-            .html(_data.name)
-            .prepend('<i class="bi bi-box-arrow-up-right"></i>')
-            .attr('href', _.url('person/view/' + _data.person_id))
-            .on('click', function(e) {
-              _context.close();
+            e.stopPropagation();
+            e.preventDefault();
 
-            })
+            _.hideContexts();
 
-          );
+            let _context = _.context();
+            let _tr = $(this);
+            let _data = _tr.data();
 
-          _context.append(
-            $('<a target="_blank"></a>')
-            .html(_data.street)
-            .prepend('<i class="bi bi-box-arrow-up-right"></i>')
-            .attr('href', _.url('property/view/' + _data.properties_id))
-            .on('click', function(e) {
-              _context.close();
+            _context.append(
+              $('<a target="_blank"></a>')
+              .html(_data.name)
+              .prepend('<i class="bi bi-box-arrow-up-right"></i>')
+              .attr('href', _.url('person/view/' + _data.person_id))
+              .on('click', function(e) {
+                _context.close();
 
-            })
+              })
 
-          );
+            );
 
-          _context.open(e);
+            _context.append(
+              $('<a target="_blank"></a>')
+              .html(_data.street)
+              .prepend('<i class="bi bi-box-arrow-up-right"></i>')
+              .attr('href', _.url('property/view/' + _data.properties_id))
+              .on('click', function(e) {
+                _context.close();
 
-        });
+              })
+
+            );
+
+            _context.open(e);
+
+          });
 
       });
 
