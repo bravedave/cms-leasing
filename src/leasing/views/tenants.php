@@ -70,62 +70,59 @@ use strings;
             data-tenant_type="%s"
             data-pm="%s"
             class="%s">',
-            $dto->properties_id,
-            $dto->person_id,
-            htmlspecialchars($dto->name),
-            strings::isEmail($dto->email) ? 'yes' : 'no',
-            htmlspecialchars($dto->address_street),
-            htmlspecialchars($street_index),
-            $type,
-            strings::initials($dto->property_manager_name),
-            'console' == $dto->source ? 'text-warning' : ''
+          $dto->properties_id,
+          $dto->person_id,
+          htmlspecialchars($dto->name),
+          strings::isEmail($dto->email) ? 'yes' : 'no',
+          htmlspecialchars($dto->address_street),
+          htmlspecialchars($street_index),
+          $type,
+          strings::initials($dto->property_manager_name),
+          'console' == $dto->source ? 'text-warning' : ''
 
         );
       ?>
 
-          <td class="small text-center" line-number></td>
-          <td>
-            <?= $dto->name ?>
-          </td>
-          <td title="<?= strings::isMobilePhone($dto->phone) ? strings::asMobilePhone($dto->phone) : strings::asLocalPhone($dto->phone) ?>">
-            <?= strings::isPhone($dto->phone) ? '<i class="bi bi-telephone"></i>' : '&nbsp;' ?>
-          </td>
-          <td title="<?= $dto->email ?>"><?= strings::isEmail($dto->email) ? '<i class="bi bi-at"></i>' : '&nbsp;' ?></td>
-          <td><?= $dto->address_street ?></td>
-          <td>
-            <?= strings::asLocalDate($dto->lease_start) ?>
-            <div class="text-muted font-italic small"><?= strings::asLocalDate($dto->lease_start_inaugural) ?></div>
+        <td class="small text-center" line-number></td>
+        <td>
+          <?= $dto->name ?>
+        </td>
+        <td title="<?= strings::isMobilePhone($dto->phone) ? strings::asMobilePhone($dto->phone) : strings::asLocalPhone($dto->phone) ?>">
+          <?= strings::isPhone($dto->phone) ? '<i class="bi bi-telephone"></i>' : '&nbsp;' ?>
+        </td>
+        <td title="<?= $dto->email ?>"><?= strings::isEmail($dto->email) ? '<i class="bi bi-at"></i>' : '&nbsp;' ?></td>
+        <td><?= $dto->address_street ?></td>
+        <td>
+          <?= strings::asLocalDate($dto->lease_start) ?>
+          <div class="text-muted font-italic small"><?= strings::asLocalDate($dto->lease_start_inaugural) ?></div>
 
-          </td>
-          <td>
-            <?= strings::asLocalDate($dto->lease_end) ?>
-            <?php
-              if ( strtotime( $dto->vacate) > 0) {
-                printf(
-                  '<div class="text-muted font-italic small">%s</div>',
-                  strings::asLocalDate($dto->vacate)
+        </td>
+        <td>
+          <?= strings::asLocalDate($dto->lease_end) ?>
+          <?php
+          if (strtotime($dto->vacate) > 0) {
+            printf(
+              '<div class="text-muted font-italic small">%s</div>',
+              strings::asLocalDate($dto->vacate)
 
-                );
+            );
+          } elseif (strtotime($dto->vacate_console) > 0) {
+            printf(
+              '<div class="font-italic small text-warning" title="console data">%s</div>',
+              strings::asLocalDate($dto->vacate_console)
 
-              }
-              elseif ( strtotime( $dto->vacate_console) > 0) {
-                printf(
-                  '<div class="font-italic small text-warning" title="console data">%s</div>',
-                  strings::asLocalDate($dto->vacate_console)
-
-                );
-
-              }
-            ?>
-          </td>
-          <td class="text-center"><?= $type ?></td>
-          <td class="text-center"><?= $dto->source ?></td>
-          <td class="text-center"><?= strings::initials( $dto->property_manager_name) ?></td>
+            );
+          }
+          ?>
+        </td>
+        <td class="text-center"><?= $type ?></td>
+        <td class="text-center"><?= $dto->source ?></td>
+        <td class="text-center"><?= strings::initials($dto->property_manager_name) ?></td>
 
 
       <?php
-      print '</tr>';
-    } ?>
+        print '</tr>';
+      } ?>
 
     </tbody>
 
