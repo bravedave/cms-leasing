@@ -36,6 +36,7 @@ use strings;
         <td>end</td>
         <td data-role="sort-header" data-key="tenant_type" class="text-center" title="Tenant/Co-Tenant/Approved Occupant/Guarantor">T/C/O/G</td>
         <td class="text-center">Source</td>
+        <td class="text-center" PM>PM</td>
 
       </tr>
 
@@ -97,6 +98,7 @@ use strings;
           </td>
           <td class="text-center"><?= $type ?></td>
           <td class="text-center"><?= $dto->source ?></td>
+          <td class="text-center"><?= strings::initials( $dto->property_manager_name) ?></td>
 
         </tr>
       <?php } ?>
