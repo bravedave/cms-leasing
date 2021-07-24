@@ -68,6 +68,7 @@ use strings;
             data-street="%s"
             data-street_index="%s"
             data-tenant_type="%s"
+            data-pm="%s"
             class="%s">',
             $dto->properties_id,
             $dto->person_id,
@@ -76,6 +77,7 @@ use strings;
             htmlspecialchars($dto->address_street),
             htmlspecialchars($street_index),
             $type,
+            strings::initials($dto->property_manager_name),
             'console' == $dto->source ? 'text-warning' : ''
 
         );
@@ -357,6 +359,72 @@ use strings;
 
       });
 
+    let filterPM = '';
+    if (pms.length > 0) {
+      $('#<?= $tblID ?> > thead > tr > td[PM]')
+        .on(_.browser.isMobileDevice ? 'click' : 'contextmenu', function(e) {
+          if (e.shiftKey)
+            return;
+
+          e.stopPropagation();
+          e.preventDefault();
+
+          _.hideContexts();
+
+          let _context = _.context();
+          let _me = $(this);
+
+          $.each(pms, (i, pm) => {
+            _context.append(
+              $('<a href="#"></a>')
+              .html(pm)
+              .on('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                _context.close();
+
+                filterPM = $(this).html();
+                _me
+                  .html('')
+                  .append($('<div class="badge badge-primary"></div>').html(filterPM));
+
+                $('#<?= $srch ?>').trigger('search');
+                localStorage.setItem('properties-forrent-filter-pm', filterPM);
+
+              })
+              .on('reconcile', function() {
+                if (pm == filterPM) $(this).prepend('<i class="bi bi-check"></i>')
+
+              })
+              .trigger('reconcile')
+
+            );
+
+          });
+
+          _context.append('<hr>');
+          _context.append(
+            $('<a href="#">clear</a>').on('click', function(e) {
+              e.stopPropagation();
+              e.preventDefault();
+              _context.close();
+
+              filterPM = '';
+              _me.html('PM');
+              $('#<?= $srch ?>')
+                .trigger('search');
+
+              localStorage.removeItem('properties-forrent-filter-pm');
+
+            })
+          );
+
+          _context.open(e);
+
+        });
+
+    }
+
     let filterTenantType = '';
     $('> thead > tr >td[data-key="tenant_type"]', '#<?= $tblID ?>')
       .on('contextmenu', function(e) {
@@ -487,7 +555,10 @@ use strings;
             let _tr = $(tr);
             let _data = _tr.data();
 
-            if ('' != filterTenantType && _data.tenant_type != filterTenantType) {
+            if (filterPM != '' && _data.pm != filterPM) {
+              _tr.addClass('d-none');
+
+            } else if ('' != filterTenantType && _data.tenant_type != filterTenantType) {
               _tr.addClass('d-none');
 
             } else if ('' == txt.trim()) {
