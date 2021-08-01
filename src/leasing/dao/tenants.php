@@ -33,7 +33,7 @@ class tenants extends _dao {
     if ($debug) sys::logSQL(sprintf('<start %ss> %s', $timer->elapsed(), __METHOD__));
 
     $where = [
-      sprintf('`lease_start` <= %s', $this->quote(date('Y-m-d'))),
+      sprintf('(`lease_start_inaugural` <= %s OR `lease_start` <= %s)', $this->quote(date('Y-m-d')), $this->quote(date('Y-m-d'))),
       sprintf('`lease_end` > %s', $this->quote(date('Y-m-d'))),
       sprintf('( `vacate` IS NULL OR `vacate` = %s OR `vacate` > %s)', $this->quote(date('0000-00-00')), $this->quote(date('Y-m-d'))),
       'NOT `lessor_signature` IS NULL'
@@ -474,7 +474,7 @@ class tenants extends _dao {
     $timer = \application::app()->timer();
 
     $where = [
-      sprintf('`lease_start` <= %s', $this->quote(date('Y-m-d'))),
+      sprintf('(`lease_start_inaugural` <= %s OR `lease_start` <= %s)', $this->quote(date('Y-m-d')), $this->quote(date('Y-m-d'))),
       sprintf('`lease_end` > %s', $this->quote(date('Y-m-d'))),
       sprintf('( `vacate` IS NULL OR `vacate` = %s OR `vacate` > %s)', $this->quote(date('0000-00-00')), $this->quote(date('Y-m-d'))),
       'NOT `lessor_signature` IS NULL'
