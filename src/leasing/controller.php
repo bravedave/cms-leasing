@@ -81,13 +81,14 @@ class controller extends \Controller {
       if ($id = (int)$this->getPost('id')) {
         $dao = new dao\maintenance;
         if ($res = $dao->getSchedule($id)) {
-          \Json::ack($action)
+          Json::ack($action)
           ->add('data', $res->dtoSet());
         } else {
-          \Json::nak($action);
+          Json::ack($action)
+            ->add('data', []);
         }
       } else {
-        \Json::nak($action);
+        Json::nak($action);
       }
     } elseif ('get-tenants-for-property' == $action) {
       /*
