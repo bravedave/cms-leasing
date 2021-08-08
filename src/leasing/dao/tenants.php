@@ -244,6 +244,7 @@ class tenants extends _dao {
        *
        * On July 14 I made a comment "don't fill from console if we have tenants..."
        * which is obviously at odds with commenting the code out
+       * see comment is forum
        *
        */
       //
@@ -259,6 +260,12 @@ class tenants extends _dao {
          * are there any console tenants missing here
          */
 
+        /**
+         * Forum : 7861 => Current Tenants - missing tenants
+         *
+         * added filter NOT cp.properties_id IN (SELECT DISTINCT `properties_id` FROM `_tens`)
+         * removed filter NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)
+         */
         $where = [
           sprintf('( ct.Vacating IS NULL OR ct.Vacating = %s OR ct.Vacating > %s)', $this->quote(date('0000-00-00')), $this->quote(date('Y-m-d'))),
           sprintf('((ct.`LeaseFirstStart` != %s AND ct.`LeaseFirstStart` <= %s) OR ct.`LeaseStart` <= %s)', $this->quote('0000-00-00'), $this->quote(date('Y-m-d')), $this->quote(date('Y-m-d'))),
@@ -266,8 +273,6 @@ class tenants extends _dao {
           'NOT cp.properties_id IN (SELECT DISTINCT `properties_id` FROM `_tens`)'
 
         ];
-
-        // 'NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)'
 
         // 'NOT ISNULL(`lessor_signature`)'
 
