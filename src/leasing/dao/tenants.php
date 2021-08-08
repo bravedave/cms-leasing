@@ -239,13 +239,22 @@ class tenants extends _dao {
       );
       $this->Q($sql);
 
-      $count = 0;
-      if ($res = $this->Result('SELECT count(*) c FROM _tens')) {
-        if ($dto = $res->dto()) {
-          $count = (int)$dto->c;
-        }
-      }
-      if (0 == $count) {
+      /**
+       * Forum : 7861 => Current Tenants - missing tenants
+       *
+       * On July 14 I made a comment "don't fill from console if we have tenants..."
+       * which is obviously at odds with commenting the code out
+       *
+       */
+      //
+      // $count = 0;
+      // if ($res = $this->Result('SELECT count(*) c FROM _tens')) {
+      //   if ($dto = $res->dto()) {
+      //     $count = (int)$dto->c;
+      //   }
+      // }
+      // if (0 == $count) {
+      if (true) {
         /**
          * are there any console tenants missing here
          */
