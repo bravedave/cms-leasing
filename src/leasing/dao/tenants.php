@@ -263,9 +263,12 @@ class tenants extends _dao {
           sprintf('( ct.Vacating IS NULL OR ct.Vacating = %s OR ct.Vacating > %s)', $this->quote(date('0000-00-00')), $this->quote(date('Y-m-d'))),
           sprintf('((ct.`LeaseFirstStart` != %s AND ct.`LeaseFirstStart` <= %s) OR ct.`LeaseStart` <= %s)', $this->quote('0000-00-00'), $this->quote(date('Y-m-d')), $this->quote(date('Y-m-d'))),
           sprintf('(ct.`LeaseStop` = %s OR ct.`LeaseStop` > %s)', $this->quote('0000-00-00'), $this->quote(date('Y-m-d'))),
-          'NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)'
+          'NOT cp.properties_id IN (SELECT DISTINCT `properties_id` FROM `_tens`)'
 
         ];
+
+        // 'NOT cc.people_id IN (SELECT `person_id` FROM `_tens`)'
+
         // 'NOT ISNULL(`lessor_signature`)'
 
         if ($property_id) {
