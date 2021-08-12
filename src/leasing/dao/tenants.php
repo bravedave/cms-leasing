@@ -337,7 +337,7 @@ class tenants extends _dao {
 
             ];
 
-            if (strtotime($dto->Vacating) > strtotime($dto->lease_start)) {
+            if (strtotime($dto->Vacating) < 0) {
               if (strtotime($dto->Vacate_Override) > strtotime($dto->lease_start)) {
                 $a['vacate'] = $dto->Vacate_Override;
               }
@@ -352,8 +352,8 @@ class tenants extends _dao {
 
               ];
               $this->db->Insert('_tens', $a);
-              if (strtotime($dto->Vacating) > 0) {
-                \sys::logger(sprintf('<vacating - %s> %s', $dto->Vacating, __METHOD__));
+              if (strtotime($a['vacate']) > 0) {
+                \sys::logger(sprintf('<vacating - %s> %s',$a['vacate'], __METHOD__));
               }
 
               // sys::logger( sprintf('<%s> %s', $dto->people_id, __METHOD__));
