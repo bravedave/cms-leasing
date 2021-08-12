@@ -289,6 +289,7 @@ class tenants extends _dao {
           ct.`LeaseStart` lease_start,
           ct.`LeaseStop` lease_end,
           ct.`Vacating`,
+          ct.`Vacate_Override`,
           cc.`people_id`,
           people.`name`,
           people.`mobile`,
@@ -333,6 +334,12 @@ class tenants extends _dao {
               'type' => 'tenant'
 
             ];
+
+            if (strtotime($dto->Vacating) > strtotime($dto->lease_start)) {
+              if (strtotime($dto->Vacate_Override) > strtotime($dto->lease_start)) {
+                $a['vacate'] = $dto->Vacate_Override;
+              }
+            }
 
             if ($searchForIdProperty($dto->people_id, $dto->properties_id, $ids) > -1) {
               if ($debug) sys::logger(sprintf('<%s/%s in multiple residence (c) !> %s', $dto->people_id, $dto->properties_id, __METHOD__));
