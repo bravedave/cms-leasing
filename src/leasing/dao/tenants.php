@@ -85,6 +85,7 @@ class tenants extends _dao {
     $dbc->defineField('vacate_console', 'date');
     $dbc->defineField('lease_id', 'bigint');
     $dbc->defineField('source', 'varchar');
+    $dbc->defineField('console_tenant_id', 'bigint');
     $dbc->defineField('type', 'varchar');
 
     $dbc->check();
@@ -331,6 +332,7 @@ class tenants extends _dao {
               'phone' => strings::isMobilePhone($dto->mobile) ? $dto->mobile : $dto->telephone,
               'email' => $dto->email,
               'source' => 'console',
+              'console_tenant_id' => $dto->id,
               'type' => 'tenant'
 
             ];
