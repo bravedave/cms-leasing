@@ -7,18 +7,9 @@
     "bravedave/cms-console": "*",
     "bravedave/dvc": "*"
   },
-  "require-dev": {
-    "bravedave/green": "*"
-  },
   "autoload": {
     "psr-4": {
-      "cms\\leasing\\": "src/leasing/",
-      "cms\\property_maintenance\\": "src/property_maintenance/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "": "src/dev/"
+      "cms\\leasing\\": "src/leasing/"
     }
   },
   "license": "MIT",
