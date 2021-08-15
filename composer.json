@@ -4,12 +4,21 @@
   "type": "library",
   "minimum-stability": "dev",
   "require": {
-    "bravedave/dvc": "*",
-    "bravedave/cms-console": "*"
+    "bravedave/cms-console": "*",
+    "bravedave/dvc": "*"
+  },
+  "require-dev": {
+    "bravedave/green": "*"
   },
   "autoload": {
     "psr-4": {
-      "cms\\leasing\\": "src/leasing/"
+      "cms\\leasing\\": "src/leasing/",
+      "cms\\property_maintenance\\": "src/property_maintenance/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "": "src/dev/"
     }
   },
   "license": "MIT",
