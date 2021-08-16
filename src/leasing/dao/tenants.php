@@ -32,58 +32,6 @@ class tenants extends _dao {
     $timer = \application::app()->timer();
     if ($debug) sys::logSQL(sprintf('<start %ss> %s', $timer->elapsed(), __METHOD__));
 
-    $where = [
-      sprintf(
-        '(`lease_start_inaugural` <= %s OR `lease_start` <= %s)',
-        $this->quote(date('Y-m-d')),
-        $this->quote(date('Y-m-d'))
-      ),
-      sprintf(
-        '`lease_end` > %s',
-        $this->quote(date('Y-m-d'))
-      ),
-      sprintf(
-        '( `vacate` IS NULL OR `vacate` = %s OR `vacate` > %s)',
-        $this->quote(date('0000-00-00')),
-        $this->quote(date('Y-m-d'))
-      ),
-      'NOT `lessor_signature` IS NULL'
-
-    ];
-    // 'NOT ISNULL(`lessor_signature`)'
-
-    if ($property_id) {
-      array_unshift(
-        $where,
-        sprintf('`property_id` = %d', $property_id)
-      );
-    }
-
-    $sql = sprintf(
-      'SELECT
-        `id`,
-        `property_id`,
-        `address_street`,
-        `tenants`,
-        `tenants_approved`,
-        `tenants_guarantors`,
-        `lease_start`,
-        `lease_start_inaugural`,
-        `lease_end`,
-        `vacate`
-      FROM
-        `offer_to_lease`
-      WHERE
-        %s
-      ORDER BY
-        `property_id` ASC,
-        `lessor_signature_time` DESC',
-      implode(' AND ', $where)
-
-    );
-
-    // if ($debug) sys::logSQL(sprintf('<%s> %s', $sql, __METHOD__));
-
     $dbc = sys::dbCheck('_tens');
 
     $dbc->temporary = true;
@@ -104,7 +52,62 @@ class tenants extends _dao {
 
     $dbc->check();
 
+    $where = [
+      sprintf(
+        '`lease_end` > %s',
+        $this->quote(date('Y-m-d'))
+      ),
+      sprintf(
+        '(`lease_start_inaugural` <= %s OR `lease_start` <= %s)',
+        $this->quote(date('Y-m-d')),
+        $this->quote(date('Y-m-d'))
+      ),
+      sprintf(
+        '( `vacate` IS NULL OR `vacate` = %s OR `vacate` > %s)',
+        $this->quote(date('0000-00-00')),
+        $this->quote(date('Y-m-d'))
+      ),
+      'NOT `lessor_signature` IS NULL'
+
+    ];
+    // 'NOT ISNULL(`lessor_signature`)'
+
+    if ($property_id) {
+      array_unshift(
+        $where,
+        sprintf('`property_id` = %d', $property_id)
+      );
+    }
+
+    $sqlTemplate =
+      'SELECT
+        `id`,
+        `property_id`,
+        `address_street`,
+        `tenants`,
+        `tenants_approved`,
+        `tenants_guarantors`,
+        `lease_start`,
+        `lease_start_inaugural`,
+        `lease_end`,
+        `vacate`
+      FROM
+        `offer_to_lease`
+      WHERE
+        %s
+      ORDER BY
+        `property_id` ASC,
+        `lessor_signature_time` DESC';
+
+    $sql = sprintf(
+      $sqlTemplate,
+      implode(' AND ', $where)
+
+    );
+
+    // if ($debug) sys::logSQL(sprintf('<%s> %s', $sql, __METHOD__));
     if ($res = $this->Result($sql)) {
+
       $ids = [];
       $property_ids = [];
       $searchForIdProperty = function ($id, $property, $array): int {
@@ -117,7 +120,7 @@ class tenants extends _dao {
         return -1;
       };
 
-      $res->dtoSet(function ($dto) use (&$ids, &$property_ids, $searchForIdProperty, $debug) {
+      $workerFunction = function ($dto) use (&$ids, &$property_ids, $searchForIdProperty, $debug) {
         if (in_array($dto->property_id, $property_ids)) {
           return null;
         }
@@ -220,7 +223,27 @@ class tenants extends _dao {
             }
           }
         }
-      });
+
+        return $dto;
+      };
+
+      $_dtoSet = $res->dtoSet($workerFunction);
+
+      if (!$_dtoSet) {
+        /**
+         * remove the first parameter, and try again,
+         * this is a periodic continuance of the last lease
+         */
+        // array_shift($where);
+        // $sql = sprintf(
+        //   $sqlTemplate . ' LIMIT 1',
+        //   implode(' AND ', $where)
+
+        // );
+        // $_dtoSet = $res->dtoSet($workerFunction);
+        \sys::logger( sprintf('<%s> %s', 'trying again ignoring lease end', __METHOD__));
+
+      }
     }
 
     if (config::check_console_tenants) {
