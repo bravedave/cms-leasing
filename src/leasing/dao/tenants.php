@@ -248,13 +248,16 @@ class tenants extends _dao {
          * the lease_end parameter is on the end of the array
          **/
 
-        // array_pop($where);
-        // $sql = sprintf(
-        //   $sqlTemplate . ' LIMIT 1',
-        //   implode(' AND ', $where)
+        array_pop($where);
+        $sql = sprintf(
+          $sqlTemplate . ' LIMIT 1',
+          implode(' AND ', $where)
 
-        // );
-        // $_dtoSet = $res->dtoSet($workerFunction);
+        );
+        if ( $res = $this->Result($sql)) {
+          $_dtoSet = $res->dtoSet($workerFunction);
+
+        }
         \sys::logger( sprintf('<%s> %s', 'trying again ignoring lease end', __METHOD__));
 
       }
