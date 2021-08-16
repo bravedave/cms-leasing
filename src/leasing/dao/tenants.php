@@ -239,6 +239,7 @@ class tenants extends _dao {
 
       if (!$_dtoSet) {
         /**
+         * https://cmss.darcy.com.au/forum/view/7932
          * remove the last parameter, and try again,
          * this is a periodic continuance of the last lease
          */

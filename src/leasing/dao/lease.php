@@ -87,6 +87,7 @@ class lease extends _dao {
           return $dto;
         } else {
           /**
+           * https://cmss.darcy.com.au/forum/view/7932
            * remove the last parameter, and try again,
            * this is a periodic continuance of the last lease
            */
