@@ -52,11 +52,11 @@ class tenants extends _dao {
 
     $dbc->check();
 
+    /**
+     * pay attention
+     * the lease_end parameter is on the end of the array
+     **/
     $where = [
-      sprintf(
-        '`lease_end` > %s',
-        $this->quote(date('Y-m-d'))
-      ),
       sprintf(
         '(`lease_start_inaugural` <= %s OR `lease_start` <= %s)',
         $this->quote(date('Y-m-d')),
@@ -67,7 +67,11 @@ class tenants extends _dao {
         $this->quote(date('0000-00-00')),
         $this->quote(date('Y-m-d'))
       ),
-      'NOT `lessor_signature` IS NULL'
+      'NOT `lessor_signature` IS NULL',
+      sprintf(
+        '`lease_end` > %s',
+        $this->quote(date('Y-m-d'))
+      )
 
     ];
     // 'NOT ISNULL(`lessor_signature`)'
@@ -78,6 +82,10 @@ class tenants extends _dao {
         sprintf('`property_id` = %d', $property_id)
       );
     }
+    /**
+     * pay attention
+     * the lease_end parameter is on the end of the array
+     **/
 
     $sqlTemplate =
       'SELECT
@@ -234,7 +242,13 @@ class tenants extends _dao {
          * remove the first parameter, and try again,
          * this is a periodic continuance of the last lease
          */
-        // array_shift($where);
+
+        /**
+         * pay attention
+         * the lease_end parameter is on the end of the array
+         **/
+
+        // array_pop($where);
         // $sql = sprintf(
         //   $sqlTemplate . ' LIMIT 1',
         //   implode(' AND ', $where)
