@@ -130,7 +130,7 @@ class lease extends _dao {
                     }
 
                     if ( $tenantMatch) {
-                      $dto->lease_end_absolute = $dto->lease_end;
+                      $dto->lease_end_absolute = $dtoX->lease_end;
                       if ( strtotime( $dtoX->vacate) > strtotime( $dto->vacate)) $dto->vacate = $dtoX->vacate;
 
                     }
