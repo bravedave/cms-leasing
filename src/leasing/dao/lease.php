@@ -59,6 +59,7 @@ class lease extends _dao {
           o.`tenants`,
           o.`tenants_approved`,
           o.`tenants_guarantors`,
+          o.`lease_type`,
           o.`lease_start`,
           o.`lease_start_inaugural`,
           o.`lease_end`,
