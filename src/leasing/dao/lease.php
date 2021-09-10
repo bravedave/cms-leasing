@@ -31,7 +31,9 @@ class lease extends _dao {
           $property_id
         ),
         sprintf(
-          'o.`lease_start` <= %s',
+          '((o.`lease_start_inaugural` > %s AND o.`lease_start_inaugural` <= %s) OR o.`lease_start` <= %s)',
+          $this->quote('0000-00-00'),
+          $this->quote(date('Y-m-d')),
           $this->quote(date('Y-m-d'))
         ),
         sprintf(
@@ -71,7 +73,9 @@ class lease extends _dao {
           `offer_to_lease` o
         WHERE
           %s
-        ORDER BY `lease_start` DESC';
+        ORDER BY
+          `lease_start` DESC,
+          `lessor_signature_time` DESC';
 
       $sql = sprintf(
         $sqlTemplate,
@@ -194,8 +198,10 @@ class lease extends _dao {
           $reference
         ),
         sprintf(
-          'o.`lease_start` <= %s',
-          $this->quote($date)
+          '((o.`lease_start_inaugural` > %s AND o.`lease_start_inaugural` <= %s) OR o.`lease_start` <= %s)',
+          $this->quote('0000-00-00'),
+          $this->quote(date('Y-m-d')),
+          $this->quote(date('Y-m-d'))
         ),
         sprintf(
           '( o.`vacate` IS NULL OR o.`vacate` = %s OR o.`vacate` > %s)',
@@ -234,7 +240,9 @@ class lease extends _dao {
           `offer_to_lease` o
         WHERE
           %s
-        ORDER BY `lease_start` DESC';
+        ORDER BY
+          `lease_start` DESC,
+          `lessor_signature_time` DESC';
 
       $sql = sprintf(
         $sqlTemplate,
