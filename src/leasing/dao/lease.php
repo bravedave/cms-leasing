@@ -194,8 +194,9 @@ class lease extends _dao {
        **/
       $where = [
         sprintf(
-          'o.`rent_reference` = %d',
-          $reference
+          '(o.`rent_reference` = %s OR o.`rent_reference_override` = %s',
+          $this->quote( $reference),
+          $this->quote( $reference)
         ),
         sprintf(
           '((o.`lease_start_inaugural` > %s AND o.`lease_start_inaugural` <= %s) OR o.`lease_start` <= %s)',
