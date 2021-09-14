@@ -1,5 +1,7 @@
 # CMS Leasing
 
+Looks up leases and tenants of properties
+
 ## Add to application
 
 ```bash
