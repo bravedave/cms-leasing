@@ -261,6 +261,7 @@ class tenants extends _dao {
           $_dtoSet = $res->dtoSet($workerFunction);
 
         }
+        \sys::logSQL( sprintf('<%s> %s', $sql, __METHOD__));
         \sys::logger( sprintf('<trying again ignoring lease end - %s> %s', $_dtoSet ? 'found' : 'not found', __METHOD__));
 
       }
