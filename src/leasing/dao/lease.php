@@ -242,8 +242,8 @@ class lease extends _dao {
         WHERE
           %s
         ORDER BY
-          `lease_start` DESC,
-          `lessor_signature_time` DESC';
+          `lessor_signature_time` DESC,
+          `lease_start` DESC';
 
       $sql = sprintf(
         $sqlTemplate,
