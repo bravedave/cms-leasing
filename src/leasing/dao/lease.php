@@ -197,7 +197,7 @@ class lease extends _dao {
         $this->quote( $reference),
         $this->quote( $reference)
       );
-      $where_autoextend = $_w;
+      $where_autoextend[] = $_w;
 
       $where[] = $_w = sprintf(
         '((o.`lease_start_inaugural` > %s AND o.`lease_start_inaugural` <= %s) OR o.`lease_start` <= %s)',
@@ -205,7 +205,7 @@ class lease extends _dao {
         $this->quote(date('Y-m-d')),
         $this->quote(date('Y-m-d'))
       );
-      $where_autoextend = $_w;
+      $where_autoextend[] = $_w;
 
       // just on where, not autoextend
       $where[] = sprintf(
