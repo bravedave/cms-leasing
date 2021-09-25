@@ -188,38 +188,40 @@ class lease extends _dao {
     $date = $date ?? date('Y-m-d');
 
     if (class_exists('dvc\offertolease\dao\offer_to_lease')) {
-      /**
-       * pay attention
-       * the lease_end parameter is on the end of the $where array
-       **/
-      $where = [
-        sprintf(
-          '(o.`rent_reference` = %s OR o.`rent_reference_override` = %s)',
-          $this->quote( $reference),
-          $this->quote( $reference)
-        ),
-        sprintf(
-          '((o.`lease_start_inaugural` > %s AND o.`lease_start_inaugural` <= %s) OR o.`lease_start` <= %s)',
-          $this->quote('0000-00-00'),
-          $this->quote(date('Y-m-d')),
-          $this->quote(date('Y-m-d'))
-        ),
-        sprintf(
-          '( o.`vacate` IS NULL OR o.`vacate` = %s OR o.`vacate` > %s)',
-          $this->quote(date('0000-00-00')),
-          $this->quote($date)
-        ),
-        'NOT o.`lessor_signature` IS NULL',
-        sprintf(
-          'o.`lease_end` > %s',
-          $this->quote($date)
-        )
+      
+      $where = [];
+      $where_autoextend = [];
 
-      ];
-      /**
-       * pay attention
-       * the lease_end parameter is on the end of the $where array
-       **/
+      $where[] = $_w = sprintf(
+        '(o.`rent_reference` = %s OR o.`rent_reference_override` = %s)',
+        $this->quote( $reference),
+        $this->quote( $reference)
+      );
+      $where_autoextend = $_w;
+
+      $where[] = $_w = sprintf(
+        '((o.`lease_start_inaugural` > %s AND o.`lease_start_inaugural` <= %s) OR o.`lease_start` <= %s)',
+        $this->quote('0000-00-00'),
+        $this->quote(date('Y-m-d')),
+        $this->quote(date('Y-m-d'))
+      );
+      $where_autoextend = $_w;
+
+      // just on where, not autoextend
+      $where[] = sprintf(
+        'o.`lease_end` > %s',
+        $this->quote($date)
+      );
+
+      // just on where, not autoextend
+      $where[] = sprintf(
+        '( o.`vacate` IS NULL OR o.`vacate` = %s OR o.`vacate` > %s)',
+        $this->quote(date('0000-00-00')),
+        $this->quote($date)
+      );
+      
+      $where[] = $_w = 'NOT o.`lessor_signature` IS NULL';
+
 
       $sqlTemplate =
         'SELECT
@@ -317,28 +319,27 @@ class lease extends _dao {
         } else {
           /**
            * https://cmss.darcy.com.au/forum/view/7932
-           * remove the last parameter, and try again,
+           * remove the lease end and vacate and try again,
            * this is a periodic continuance of the last lease
+           * 
+           * corrected for https://cmss.darcy.com.au/forum/view/8361
+           * the original query would report a previous lease where no vacate had been set
            */
-
-          /**
-           * pay attention
-           * the lease_end parameter is on the end of the $where array
-           **/
-
-          array_pop($where);
           $sql = sprintf(
             $sqlTemplate,
-            implode(' AND ', $where)
+            implode(' AND ', $where_autoextend)
 
           );
 
           if ($res = $this->Result($sql)) {
             if ($dto = $res->dto()) {
-              $otl = new dvc\offertolease\dao\offer_to_lease;
-              $dto->lease_term = (int)$otl->getLeaseTermMonths($dto);
+              if ( !(strtotime( $dto->vacate) > 0)) { // they are vacating - false alarm
+                $otl = new dvc\offertolease\dao\offer_to_lease;
+                $dto->lease_term = (int)$otl->getLeaseTermMonths($dto);
+  
+                return $dto;
 
-              return $dto;
+              }
             }
           }
         }
