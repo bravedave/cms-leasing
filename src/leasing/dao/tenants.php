@@ -262,7 +262,7 @@ class tenants extends _dao {
         );
         if ( $res = $this->Result($sql)) {
           if ( $_dto = $res->dto()) {
-            if ( !(strtotime( $dto->vacate) > 0)) { // they are vacating - false alarm
+            if ( !(strtotime( $_dto->vacate) > 0)) { // they are vacating - false alarm
               $workerFunction($_dto);
               \sys::logger( sprintf('<trying again ignoring lease end - %s> %s', $_dtoSet ? 'found' : 'not found', __METHOD__));
             }
