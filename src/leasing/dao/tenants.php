@@ -56,36 +56,42 @@ class tenants extends _dao {
      * pay attention
      * the lease_end parameter is on the end of the array
      **/
-    $where = [
-      sprintf(
-        '(`lease_start_inaugural` <= %s OR `lease_start` <= %s)',
-        $this->quote(date('Y-m-d')),
-        $this->quote(date('Y-m-d'))
-      ),
-      sprintf(
-        '( `vacate` IS NULL OR `vacate` = %s OR `vacate` > %s)',
-        $this->quote(date('0000-00-00')),
-        $this->quote(date('Y-m-d'))
-      ),
-      'NOT `lessor_signature` IS NULL',
-      sprintf(
-        '`lease_end` > %s',
-        $this->quote(date('Y-m-d'))
-      )
+    $where = [];
+    $where_autoextend = [];
 
-    ];
-    // 'NOT ISNULL(`lessor_signature`)'
+    $where[] = $_w = sprintf(
+      '(`lease_start_inaugural` <= %s OR `lease_start` <= %s)',
+      $this->quote(date('Y-m-d')),
+      $this->quote(date('Y-m-d'))
+    );
+    $where_autoextend[] = $_w;
+    
+    // just on where, not autoextend
+    $where[] = sprintf(
+      '( `vacate` IS NULL OR `vacate` = %s OR `vacate` > %s)',
+      $this->quote(date('0000-00-00')),
+      $this->quote(date('Y-m-d'))
+    );
+
+    // just on where, not autoextend
+    $where[] = sprintf(
+      '`lease_end` > %s',
+      $this->quote(date('Y-m-d'))
+    );
+    
+    $where[] = $_w = 'NOT `lessor_signature` IS NULL';
+    $where_autoextend[] = $_w;
 
     if ($property_id) {
       array_unshift(
         $where,
         sprintf('`property_id` = %d', $property_id)
       );
+      array_unshift(
+        $where_autoextend,
+        sprintf('`property_id` = %d', $property_id)
+      );
     }
-    /**
-     * pay attention
-     * the lease_end parameter is on the end of the array
-     **/
 
     $sqlTemplate =
       'SELECT
@@ -244,26 +250,24 @@ class tenants extends _dao {
          * https://cmss.darcy.com.au/forum/view/7932
          * remove the last parameter, and try again,
          * this is a periodic continuance of the last lease
+         * 
+         * corrected for https://cmss.darcy.com.au/forum/view/8361
+         * the original query would report a previous lease where no vacate had been set
          */
 
-        /**
-         * pay attention
-         * the lease_end parameter is on the end of the array
-         **/
-
-        array_pop($where);
         $sql = sprintf(
           $sqlTemplate . ' LIMIT 1',
-          implode(' AND ', $where)
+          implode(' AND ', $where_autoextend)
 
         );
         if ( $res = $this->Result($sql)) {
-          $_dtoSet = $res->dtoSet($workerFunction);
-
+          if ( $_dto = $res->dto()) {
+            if ( !(strtotime( $dto->vacate) > 0)) { // they are vacating - false alarm
+              $workerFunction($_dto);
+              \sys::logger( sprintf('<trying again ignoring lease end - %s> %s', $_dtoSet ? 'found' : 'not found', __METHOD__));
+            }
+          }
         }
-        // \sys::logSQL( sprintf('<%s> %s', $sql, __METHOD__));
-        \sys::logger( sprintf('<trying again ignoring lease end - %s> %s', $_dtoSet ? 'found' : 'not found', __METHOD__));
-
       }
     }
 
