@@ -67,7 +67,12 @@ class lease extends _dao {
           o.`lease_end`,
           o.`lease_end` `lease_end_absolute`,
           o.`rent`,
+          o.`rent_period`,
           o.`rent_bond`,
+          o.`rent_increase`,
+          o.`rent_increase_date`,
+          o.`rent_increase_rent`,
+          o.`rent_increase_period`
           o.`vacate`
         FROM
           `offer_to_lease` o
@@ -188,7 +193,7 @@ class lease extends _dao {
     $date = $date ?? date('Y-m-d');
 
     if (class_exists('dvc\offertolease\dao\offer_to_lease')) {
-      
+
       $where = [];
       $where_autoextend = [];
 
@@ -219,7 +224,7 @@ class lease extends _dao {
         $this->quote(date('0000-00-00')),
         $this->quote($date)
       );
-      
+
       $where[] = $_w = 'NOT o.`lessor_signature` IS NULL';
 
 
@@ -324,7 +329,7 @@ class lease extends _dao {
            * https://cmss.darcy.com.au/forum/view/7932
            * remove the lease end and vacate and try again,
            * this is a periodic continuance of the last lease
-           * 
+           *
            * corrected for https://cmss.darcy.com.au/forum/view/8361
            * the original query would report a previous lease where no vacate had been set
            */
@@ -339,7 +344,7 @@ class lease extends _dao {
               if ( !(strtotime( $dto->vacate) > 0)) { // they are vacating - false alarm
                 $otl = new dvc\offertolease\dao\offer_to_lease;
                 $dto->lease_term = (int)$otl->getLeaseTermMonths($dto);
-  
+
                 return $dto;
 
               }
