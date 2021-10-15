@@ -72,7 +72,7 @@ class lease extends _dao {
           o.`rent_increase`,
           o.`rent_increase_date`,
           o.`rent_increase_rent`,
-          o.`rent_increase_period`
+          o.`rent_increase_period`,
           o.`vacate`
         FROM
           `offer_to_lease` o
