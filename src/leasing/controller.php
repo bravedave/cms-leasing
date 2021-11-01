@@ -112,6 +112,7 @@ class controller extends \Controller {
           $dao = new dao\lease;
           Json::ack($action)
             ->add('lease', $dao->getCurrentLease($id))
+            ->add('noleggio', $dao->getCurrentNoleggio($id))
             ->add('tenants', $tens);
         } else {
           Json::nak($action);

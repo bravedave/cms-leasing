@@ -358,4 +358,73 @@ class lease extends _dao {
 
     return null;
   }
+
+  public function getCurrentNoleggio(int $property_id) {
+    $debug = false;
+    // $debug = true;
+
+    // $timer = \application::app()->timer();
+
+    if (class_exists('cms\noleggio\dao\noleggio')) {
+      $where = [
+        sprintf(
+          'n.`properties_id` = %d',
+          $property_id
+        ),
+        sprintf(
+          '((n.`lease_start_inaugural` > %s AND n.`lease_start_inaugural` <= %s) OR n.`lease_start` <= %s)',
+          $this->quote('0000-00-00'),
+          $this->quote(date('Y-m-d')),
+          $this->quote(date('Y-m-d'))
+        ),
+        'n.`archived` = 0',
+        sprintf(
+          '(COALESCE( n.`lease_end`, %s) = %s OR DATE(n.`lease_end`) > %s)',
+          $this->quote(date('0000-00-00')),
+          $this->quote(date('0000-00-00')),
+          $this->quote(date('Y-m-d'))
+        )
+
+      ];
+
+      $sqlTemplate =
+      'SELECT
+          n.`id`,
+          n.`properties_id`,
+          p.`address_street`,
+          n.`tenants`,
+          n.`lease_start`,
+          n.`lease_start_inaugural`,
+          n.`lease_end`,
+          n.`rent`,
+          n.`rent_period`,
+          n.`bond`,
+          n.`rent_reference`
+        FROM
+          `noleggio` n
+            LEFT JOIN
+          `properties` p ON p.`id` = n.`properties_id`
+        WHERE
+          %s';
+
+      $sql = sprintf(
+        $sqlTemplate,
+        implode(' AND ', $where)
+
+      );
+
+      if ($debug) sys::logSQL(sprintf('<%s> %s', $sql, __METHOD__));
+
+      if ($res = $this->Result($sql)) {
+        if ($dto = $res->dto()) {
+          $otl = new dvc\offertolease\dao\offer_to_lease;
+          $dto->lease_term = (int)$otl->getLeaseTermMonths($dto);
+
+          return $dto;
+        }
+      }
+    }
+
+    return null;
+  }
 }

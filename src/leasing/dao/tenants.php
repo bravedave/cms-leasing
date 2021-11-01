@@ -58,6 +58,7 @@ class tenants extends _dao {
      **/
     $where = [];
     $where_autoextend = [];
+    $where_noleggio = [];
 
     $where[] = $_w = sprintf(
       '(`lease_start_inaugural` <= %s OR `lease_start` <= %s)',
@@ -65,7 +66,12 @@ class tenants extends _dao {
       $this->quote(date('Y-m-d'))
     );
     $where_autoextend[] = $_w;
-    
+    $where_noleggio[] = sprintf(
+      '(n.`lease_start_inaugural` <= %s OR n.`lease_start` <= %s)',
+      $this->quote(date('Y-m-d')),
+      $this->quote(date('Y-m-d'))
+    );
+
     // just on where, not autoextend
     $where[] = sprintf(
       '( `vacate` IS NULL OR `vacate` = %s OR `vacate` > %s)',
@@ -78,9 +84,16 @@ class tenants extends _dao {
       '`lease_end` > %s',
       $this->quote(date('Y-m-d'))
     );
-    
+    $where_noleggio[] = sprintf(
+      '(COALESCE( n.`lease_end`, %s) = %s OR DATE( n.`lease_end`) > %s)',
+      $this->quote('0000-00-00'),
+      $this->quote('0000-00-00'),
+      $this->quote(date('Y-m-d'))
+    );
+
     $where[] = $_w = 'NOT `lessor_signature` IS NULL';
     $where_autoextend[] = $_w;
+    $where_noleggio[] = 'n.`archived` = 0';
 
     if ($property_id) {
       array_unshift(
@@ -90,6 +103,10 @@ class tenants extends _dao {
       array_unshift(
         $where_autoextend,
         sprintf('`property_id` = %d', $property_id)
+      );
+      array_unshift(
+        $where_noleggio,
+        sprintf('n.`properties_id` = %d', $property_id)
       );
     }
 
@@ -113,6 +130,25 @@ class tenants extends _dao {
         `property_id` ASC,
         `lessor_signature_time` DESC';
 
+    $sqlNoleggio = sprintf(
+      'SELECT
+        n.`id`,
+        n.`properties_id` property_id,
+        p.`address_street`,
+        n.`tenants`,
+        n.`lease_start`,
+        n.`lease_start_inaugural`,
+        n.`lease_end`
+      FROM
+        `noleggio` n
+          LEFT JOIN
+        `properties` p ON p.`id` = n.`properties_id`
+      WHERE
+        %s
+      LIMIT 1',
+      implode(' AND ', $where_noleggio)
+    );
+
     $sql = sprintf(
       $sqlTemplate,
       implode(' AND ', $where)
@@ -134,7 +170,7 @@ class tenants extends _dao {
         return -1;
       };
 
-      $workerFunction = function ($dto) use (&$ids, &$property_ids, $searchForIdProperty, $debug) {
+      $workerFunction = function ($dto, string $src = 'lease') use (&$ids, &$property_ids, $searchForIdProperty, $debug) {
         if (in_array($dto->property_id, $property_ids)) {
           return null;
         }
@@ -161,9 +197,9 @@ class tenants extends _dao {
                   'vacate' => $dto->vacate,
                   'person_id' => $tenant->id,
                   'name' => $tenant->name,
-                  'phone' => $tenant->phone,
+                  'phone' => $tenant->phone ?? $tenant->mobile,
                   'email' => $tenant->email,
-                  'source' => 'lease',
+                  'source' => $src,
                   'type' => 'tenant'
 
                 ];
@@ -196,7 +232,7 @@ class tenants extends _dao {
                   'name' => $tenant->name,
                   'phone' => $tenant->phone,
                   'email' => $tenant->email,
-                  'source' => 'lease',
+                  'source' => $src,
                   'type' => 'occupant'
 
                 ];
@@ -229,7 +265,7 @@ class tenants extends _dao {
                   'name' => $tenant->name,
                   'phone' => $tenant->phone,
                   'email' => $tenant->email,
-                  'source' => 'lease',
+                  'source' => $src,
                   'type' => 'guarantor'
 
                 ];
@@ -250,7 +286,7 @@ class tenants extends _dao {
          * https://cmss.darcy.com.au/forum/view/7932
          * remove the last parameter, and try again,
          * this is a periodic continuance of the last lease
-         * 
+         *
          * corrected for https://cmss.darcy.com.au/forum/view/8361
          * the original query would report a previous lease where no vacate had been set
          */
@@ -260,12 +296,31 @@ class tenants extends _dao {
           implode(' AND ', $where_autoextend)
 
         );
-        if ( $res = $this->Result($sql)) {
-          if ( $_dto = $res->dto()) {
-            if ( !(strtotime( $_dto->vacate) > 0)) { // they are vacating - false alarm
+        if ($res = $this->Result($sql)) {
+          if ($_dto = $res->dto()) {
+            if (!(strtotime($_dto->vacate) > 0)) { // they are vacating - false alarm
               $workerFunction($_dto);
-              \sys::logger( sprintf('<trying again ignoring lease end - %s> %s', $_dtoSet ? 'found' : 'not found', __METHOD__));
+              \sys::logger(sprintf('<trying again ignoring lease end - %s> %s', $_dtoSet ? 'found' : 'not found', __METHOD__));
             }
+          } else {
+            if ($res = $this->Result($sqlNoleggio)) {
+              if ($_dto = $res->dto()) {
+                $_dto->tenants_approved = '';
+                $_dto->tenants_guarantors = '';
+                $_dto->vacate = '';
+                $workerFunction($_dto, 'noleggio');
+                // \sys::logger(sprintf('<%s> %s', 'no tenant found !', __METHOD__));
+              }
+              // else {
+              //   \sys::logger( sprintf('<%s> %s', 'no result ..', __METHOD__));
+              //   \sys::logSQL(sprintf('<%s> %s', $sqlNoleggio, __METHOD__));
+
+              // }
+            }
+            // else {
+            //   \sys::logger( sprintf('<%s> %s', 'no result ..', __METHOD__));
+
+            // }
           }
         }
       }
