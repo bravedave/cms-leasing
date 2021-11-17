@@ -12,6 +12,11 @@
       "cms\\leasing\\": "src/leasing/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "": "src/dev/"
+    }
+  },
   "license": "MIT",
   "authors": [
     {

@@ -326,7 +326,7 @@ class tenants extends _dao {
       }
     }
 
-    if (config::check_console_tenants) {
+    if (config::$CONSOLE_INTEGRATION) {
 
       $sql = sprintf(
         'UPDATE _tens
@@ -680,7 +680,7 @@ class tenants extends _dao {
     }
 
     /*--- -----[check in console]----- ---*/
-    if (config::check_console_tenants) {
+    if (config::$CONSOLE_INTEGRATION) {
       $sql = sprintf(
         'SELECT
           TenantIDs
