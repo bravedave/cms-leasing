@@ -56,6 +56,9 @@ class controller extends \Controller {
         if ($lease = $dao->getCurrentLease($id)) {
           Json::ack($action)
             ->add('lease', $lease);
+        } elseif ($lease = $dao->getCurrentNoleggio($id)) {
+          Json::ack($action)
+            ->add('noleggio', $lease);
         } else {
           Json::nak($action);
         }
@@ -82,7 +85,7 @@ class controller extends \Controller {
         $dao = new dao\maintenance;
         if ($res = $dao->getSchedule($id)) {
           Json::ack($action)
-          ->add('data', $res->dtoSet());
+            ->add('data', $res->dtoSet());
         } else {
           Json::ack($action)
             ->add('data', []);
