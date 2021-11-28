@@ -10,13 +10,14 @@
 
 namespace cms\leasing\dao;
 
+use cms\leasing\config;
 use dao\_dao;
 
 class maintenance extends _dao {
-  function getSchedule( int $id) {
-
-    $sql = sprintf(
-      'SELECT
+  function getSchedule(int $id) {
+    if (config::$CONSOLE_INTEGRATION) {
+      $sql = sprintf(
+        'SELECT
         ConsoleOwnerID,
         properties_id
       FROM
@@ -25,22 +26,18 @@ class maintenance extends _dao {
         properties_id = %d',
         $id
 
-    );
+      );
 
-    if ( $res = $this->Result( $sql)) {
-      if ( $dto = $res->dto()) {
-        if ( $dto->ConsoleOwnerID) {
-          $dao = new \cms\console\dao\console_owners_maintenance;
-          return $dao->getSchedule($dto->ConsoleOwnerID);
-
+      if ($res = $this->Result($sql)) {
+        if ($dto = $res->dto()) {
+          if ($dto->ConsoleOwnerID) {
+            $dao = new \cms\console\dao\console_owners_maintenance;
+            return $dao->getSchedule($dto->ConsoleOwnerID);
+          }
         }
-
       }
-
     }
 
     return null;
-
   }
-
 }
