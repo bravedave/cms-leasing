@@ -60,8 +60,12 @@ class tenants extends _dao {
     $where_autoextend = [];
     $where_noleggio = [];
 
+    $where[] = $_w = 'p.`forrent` = 1';
+    $where_autoextend[] = $_w;
+    $where_noleggio[] = $_w;
+
     $where[] = $_w = sprintf(
-      '(`lease_start_inaugural` <= %s OR `lease_start` <= %s)',
+      '(o.`lease_start_inaugural` <= %s OR o.`lease_start` <= %s)',
       $this->quote(date('Y-m-d')),
       $this->quote(date('Y-m-d'))
     );
@@ -74,14 +78,15 @@ class tenants extends _dao {
 
     // just on where, not autoextend
     $where[] = sprintf(
-      '( `vacate` IS NULL OR `vacate` = %s OR `vacate` > %s)',
+      '( COALESCE( o.`vacate`, %s) = %s OR o.`vacate` > %s)',
+      $this->quote(date('0000-00-00')),
       $this->quote(date('0000-00-00')),
       $this->quote(date('Y-m-d'))
     );
 
     // just on where, not autoextend
     $where[] = sprintf(
-      '`lease_end` > %s',
+      'o.`lease_end` > %s',
       $this->quote(date('Y-m-d'))
     );
     $where_noleggio[] = sprintf(
@@ -91,18 +96,18 @@ class tenants extends _dao {
       $this->quote(date('Y-m-d'))
     );
 
-    $where[] = $_w = 'NOT `lessor_signature` IS NULL';
+    $where[] = $_w = 'NOT o.`lessor_signature` IS NULL';
     $where_autoextend[] = $_w;
     $where_noleggio[] = 'n.`archived` = 0';
 
     if ($property_id) {
       array_unshift(
         $where,
-        sprintf('`property_id` = %d', $property_id)
+        sprintf('o.`property_id` = %d', $property_id)
       );
       array_unshift(
         $where_autoextend,
-        sprintf('`property_id` = %d', $property_id)
+        sprintf('o.`property_id` = %d', $property_id)
       );
       array_unshift(
         $where_noleggio,
@@ -112,23 +117,25 @@ class tenants extends _dao {
 
     $sqlTemplate =
       'SELECT
-        `id`,
-        `property_id`,
-        `address_street`,
-        `tenants`,
-        `tenants_approved`,
-        `tenants_guarantors`,
-        `lease_start`,
-        `lease_start_inaugural`,
-        `lease_end`,
-        `vacate`
+        o.`id`,
+        o.`property_id`,
+        o.`address_street`,
+        o.`tenants`,
+        o.`tenants_approved`,
+        o.`tenants_guarantors`,
+        o.`lease_start`,
+        o.`lease_start_inaugural`,
+        o.`lease_end`,
+        o.`vacate`
       FROM
-        `offer_to_lease`
+        `offer_to_lease` o
+          LEFT JOIN
+        `properties` p ON p.`id` = o.`property_id`
       WHERE
         %s
       ORDER BY
-        `property_id` ASC,
-        `lessor_signature_time` DESC';
+        o.`property_id` ASC,
+        o.`lessor_signature_time` DESC';
 
     $sqlNoleggio = sprintf(
       'SELECT
@@ -144,8 +151,7 @@ class tenants extends _dao {
           LEFT JOIN
         `properties` p ON p.`id` = n.`properties_id`
       WHERE
-        %s
-      LIMIT 1',
+        %s',
       implode(' AND ', $where_noleggio)
     );
 
@@ -155,7 +161,8 @@ class tenants extends _dao {
 
     );
 
-    // if ($debug) sys::logSQL(sprintf('<%s> %s', $sql, __METHOD__));
+    // sys::logSQL(sprintf('<%s> %s', $sql, __METHOD__));
+    // sys::logSQL(sprintf('<%s> %s', $sqlNoleggio, __METHOD__));
     if ($res = $this->Result($sql)) {
 
       $ids = [];
@@ -281,47 +288,73 @@ class tenants extends _dao {
 
       $_dtoSet = $res->dtoSet($workerFunction);
 
-      if (!$_dtoSet) {
+      if ($property_id) {
         /**
-         * https://cmss.darcy.com.au/forum/view/7932
-         * remove the last parameter, and try again,
-         * this is a periodic continuance of the last lease
-         *
-         * corrected for https://cmss.darcy.com.au/forum/view/8361
-         * the original query would report a previous lease where no vacate had been set
+         * search single property and not found, check noleggio
          */
+        if (!$_dtoSet) {
+          /**
+           * https://cmss.darcy.com.au/forum/view/7932
+           * remove the last parameter, and try again,
+           * this is a periodic continuance of the last lease
+           *
+           * corrected for https://cmss.darcy.com.au/forum/view/8361
+           * the original query would report a previous lease where no vacate had been set
+           */
 
-        $sql = sprintf(
-          $sqlTemplate . ' LIMIT 1',
-          implode(' AND ', $where_autoextend)
+          $sql = sprintf(
+            $sqlTemplate . ' LIMIT 1',
+            implode(' AND ', $where_autoextend)
 
-        );
-        if ($res = $this->Result($sql)) {
-          if ($_dto = $res->dto()) {
-            if (!(strtotime($_dto->vacate) > 0)) { // they are vacating - false alarm
-              $workerFunction($_dto);
-              \sys::logger(sprintf('<trying again ignoring lease end - %s> %s', $_dtoSet ? 'found' : 'not found', __METHOD__));
-            }
-          } else {
-            if ($res = $this->Result($sqlNoleggio)) {
-              if ($_dto = $res->dto()) {
-                $_dto->tenants_approved = '';
-                $_dto->tenants_guarantors = '';
-                $_dto->vacate = '';
-                $workerFunction($_dto, 'noleggio');
-                // \sys::logger(sprintf('<%s> %s', 'no tenant found !', __METHOD__));
+          );
+          if ($res = $this->Result($sql)) {
+            if ($_dto = $res->dto()) {
+              if (!(strtotime($_dto->vacate) > 0)) { // they are vacating - false alarm
+                $workerFunction($_dto);
+                \sys::logger(sprintf('<trying again ignoring lease end - %s> %s', $_dtoSet ? 'found' : 'not found', __METHOD__));
+              }
+            } else {
+
+              $sqlNoleggio .= ' LIMIT 1';
+              if ($res = $this->Result($sqlNoleggio)) {
+                if ($_dto = $res->dto()) {
+                  $_dto->tenants_approved = '';
+                  $_dto->tenants_guarantors = '';
+                  $_dto->vacate = '';
+                  $workerFunction($_dto, 'noleggio');
+                  // \sys::logger(sprintf('<%s> %s', 'no tenant found !', __METHOD__));
+                }
+                // else {
+                //   \sys::logger( sprintf('<%s> %s', 'no result ..', __METHOD__));
+                //   \sys::logSQL(sprintf('<%s> %s', $sqlNoleggio, __METHOD__));
+
+                // }
               }
               // else {
               //   \sys::logger( sprintf('<%s> %s', 'no result ..', __METHOD__));
-              //   \sys::logSQL(sprintf('<%s> %s', $sqlNoleggio, __METHOD__));
 
               // }
             }
-            // else {
-            //   \sys::logger( sprintf('<%s> %s', 'no result ..', __METHOD__));
-
-            // }
           }
+        }
+      } else {
+        /**
+         * get all the tenants from noleggio
+         */
+        // sys::logSQL(sprintf('<%s> %s', $sqlNoleggio, __METHOD__));
+        if ($res = $this->Result($sqlNoleggio)) {
+          while ($_dto = $res->dto()) {
+            $_dto->tenants_approved = '';
+            $_dto->tenants_guarantors = '';
+            $_dto->vacate = '';
+            $workerFunction($_dto, 'noleggio');
+            // \sys::logger(sprintf('<%s> %s', 'no tenant found !', __METHOD__));
+          }
+          // else {
+          //   \sys::logger( sprintf('<%s> %s', 'no result ..', __METHOD__));
+          //   \sys::logSQL(sprintf('<%s> %s', $sqlNoleggio, __METHOD__));
+
+          // }
         }
       }
     }
