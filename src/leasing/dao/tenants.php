@@ -309,9 +309,26 @@ class tenants extends _dao {
           );
           if ($res = $this->Result($sql)) {
             if ($_dto = $res->dto()) {
-              if (!(strtotime($_dto->vacate) > 0)) { // they are vacating - false alarm
+              /**
+               * https://cmss.darcy.com.au/forum/view/9062
+               * 8/32 Vine St, CLAYFIELD - periodic lease
+               *
+               * There is a tenant still in this property
+               *
+               * No tenant details are displaying because the lease has ended - it is now a periodic lease
+               *
+               * Can we please make a rule that the system automatically changes the status of the lease to
+               * PERIODIC if there is NO VACATE DATE and we have passed the lease end date
+               *
+               * Can we also please be able to mark the lease as periodic in the renewals matrix to get it off the renewals matrix list
+               */
+              if (strtotime($_dto->vacate) < 0 || $_dto->vacate > date('Y-m-d')) {
                 $workerFunction($_dto);
                 \sys::logger(sprintf('<trying again ignoring lease end - %s> %s', $_dtoSet ? 'found' : 'not found', __METHOD__));
+              } else {
+                // they are vacating - false alarm
+                // \sys::logger(sprintf('<they are vacating false alarm - %s> %s', $_dto->vacate, __METHOD__));
+
               }
             } else {
 
