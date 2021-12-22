@@ -86,7 +86,9 @@ class tenants extends _dao {
 
     // just on where, not autoextend
     $where[] = sprintf(
-      'o.`lease_end` > %s',
+      '(COALESCE( o.`lease_end`, %s) = %s OR DATE(o.`lease_end`) > %s)',
+      $this->quote('0000-00-00'),
+      $this->quote('0000-00-00'),
       $this->quote(date('Y-m-d'))
     );
     $where_noleggio[] = sprintf(
