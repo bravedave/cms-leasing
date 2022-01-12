@@ -332,8 +332,7 @@ class tenants extends _dao {
                 // \sys::logger(sprintf('<they are vacating false alarm - %s> %s', $_dto->vacate, __METHOD__));
 
               }
-            } else {
-
+            } elseif ($this->db->table_exists('noleggio')) {
               $sqlNoleggio .= ' LIMIT 1';
               if ($res = $this->Result($sqlNoleggio)) {
                 if ($_dto = $res->dto()) {
@@ -353,6 +352,8 @@ class tenants extends _dao {
               //   \sys::logger( sprintf('<%s> %s', 'no result ..', __METHOD__));
 
               // }
+
+
             }
           }
         }
