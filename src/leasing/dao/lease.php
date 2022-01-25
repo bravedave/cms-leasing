@@ -67,6 +67,7 @@ class lease extends _dao {
           o.`lease_end`,
           o.`lease_end` `lease_end_absolute`,
           o.`rent`,
+          o.`rent_per_month`,
           o.`rent_period`,
           o.`rent_bond`,
           o.`rent_increase`,
